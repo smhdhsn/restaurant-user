@@ -1,0 +1,10 @@
+server: 
+  host: ""
+  port: 9000
+
+db:
+  host: "bookstore_db"
+  port: 3306
+  name: "bookstore"
+  user: "bookstore"
+  pass: "bookstore"
