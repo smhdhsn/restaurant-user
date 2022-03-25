@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/smhdhsn/bookstore-user/internal/config"
@@ -29,5 +28,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Fatal(httpServer.Listen(fmt.Sprintf(":%d", conf.Server.Port)))
+	log.Fatal(httpServer.Listen(conf.Server))
 }

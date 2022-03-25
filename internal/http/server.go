@@ -1,7 +1,10 @@
 package http
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+	"github.com/smhdhsn/bookstore-user/internal/config"
 	"github.com/smhdhsn/bookstore-user/internal/http/handler"
 )
 
@@ -30,6 +33,6 @@ func New() *Server {
 }
 
 // Listen is responsible for starting the HTTP server.
-func (s *Server) Listen(port string) error {
-	return s.router.Run(port)
+func (s *Server) Listen(conf config.ServerConf) error {
+	return s.router.Run(fmt.Sprintf("%s:%d", conf.Host, conf.Port))
 }

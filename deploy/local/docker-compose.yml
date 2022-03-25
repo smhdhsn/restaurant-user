@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8
+    container_name: bookstore_db
+    networks:
+      - bookstore
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MYSQL_USER: bookstore
+      MYSQL_PASSWORD: bookstore
+      MYSQL_DATABASE: bookstore
+    ports:
+      - 3306:3306
+    volumes:
+      - bookstore:/var/lib/mysql
+    restart: on-failure
+
+  app:
+    build:
+      context: ../../
+      dockerfile: deploy/Dockerfile
+    container_name: bookstore_app
+    environment:
+      APP_ENV: $ENV
+    ports:
+      - 9000:9000
+    networks:
+      - bookstore
+    depends_on:
+      - db
+    restart: on-failure
+    command: "/app/api"
+
+networks:
+  bookstore:
+    name: bookstore
+
+volumes:
+  bookstore:
+    name: bookstore
