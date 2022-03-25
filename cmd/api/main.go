@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/smhdhsn/bookstore-user/internal/config"
 	"github.com/smhdhsn/bookstore-user/internal/db"
+	"github.com/smhdhsn/bookstore-user/internal/http"
 )
 
 func main() {
@@ -21,4 +23,11 @@ func main() {
 	if err := db.InitMigrations(dbConn); err != nil {
 		log.Fatal(err)
 	}
+
+	httpServer := http.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Fatal(httpServer.Listen(fmt.Sprintf(":%d", conf.Server.Port)))
 }

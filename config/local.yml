@@ -1,5 +1,4 @@
 server: 
-  host: ""
   port: 9000
 
 db:
