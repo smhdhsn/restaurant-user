@@ -7,9 +7,9 @@ import (
 // User represents the users table on database.
 type User struct {
 	gorm.Model
-	FirstName string `gorm:"not null" validate:"required"`
-	LastName  string `gorm:"not null" validate:"required"`
-	Email     string `gorm:"uniqueIndex,not null" validate:"required"`
-	Status    string `gorm:"not null" validate:"required"`
-	Password  string `gorm:"not null" validate:"required"`
+	FirstName string `gorm:"not null"`
+	LastName  string `gorm:"not null"`
+	Email     string `gorm:"unique,not null"`
+	Status    string `gorm:"not null"`
+	Password  string `gorm:"not null" json:"-"`
 }
