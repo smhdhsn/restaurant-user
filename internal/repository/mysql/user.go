@@ -1,6 +1,9 @@
 package mysql
 
 import (
+	"errors"
+
+	"github.com/go-sql-driver/mysql"
 	"github.com/smhdhsn/bookstore-user/internal/model"
 	"github.com/smhdhsn/bookstore-user/internal/repository/contract"
 	"gorm.io/gorm"
@@ -16,25 +19,41 @@ func NewUserRepo(db *gorm.DB) contract.UserRepository {
 	return &UserRepo{db}
 }
 
+// Find is responsible for finding user with given ID inside database.
+func (r *UserRepo) Find(userID uint) (*model.User, error) {
+	user := new(model.User)
+	err := r.db.First(user, userID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, contract.ErrRecordNotFound
+	}
+	return user, nil
+}
+
 // Store is responsible for storing a user inside database.
-func (r *UserRepo) Store(user *model.User) (*model.User, error) {
-	tx := r.db.Model(new(model.User)).Create(user)
-	return user, tx.Error
+func (r *UserRepo) Store(user *model.User) (err error) {
+	err = r.db.Create(user).Error
+	if err != nil && err.(*mysql.MySQLError).Number == contract.DuplicateEntryErrNum {
+		return contract.ErrDuplicateEntry
+	}
+	return
 }
 
 // Update is responsible for updating user's information inside database.
 func (r *UserRepo) Update(user *model.User, userID uint) error {
-	return r.db.Where("id = ?", userID).Updates(user).Error
-}
-
-// Find is responsible for finding user with given ID inside database.
-func (r *UserRepo) Find(userID uint) (*model.User, error) {
-	user := new(model.User)
-	tx := r.db.Where("id = ?", userID).First(user)
-	return user, tx.Error
+	tx := r.db.Where("id = ?", userID).Updates(user)
+	if tx.RowsAffected == 0 {
+		return contract.ErrRecordNotFound
+	} else if err := tx.Error; err.(*mysql.MySQLError).Number == contract.DuplicateEntryErrNum {
+		return contract.ErrDuplicateEntry
+	}
+	return tx.Error
 }
 
 // Destroy is responsible for deleting a user from the database.
 func (r *UserRepo) Destroy(userID uint) error {
-	return r.db.Where("id = ?", userID).Delete(new(model.User)).Error
+	tx := r.db.Where("id = ?", userID).Delete(new(model.User))
+	if tx.RowsAffected == 0 {
+		return contract.ErrRecordNotFound
+	}
+	return tx.Error
 }

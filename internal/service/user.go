@@ -19,9 +19,14 @@ func NewUserService(uRepo contract.UserRepository) *UserService {
 	}
 }
 
+// Find is responsible for storing user data inside database.
+func (s *UserService) Find(userID uint) (*model.User, error) {
+	return s.uRepo.Find(userID)
+}
+
 // Store is responsible for storing user data inside database.
-func (s *UserService) Store(req *request.StoreUserReq) (*model.User, error) {
-	user := model.User{
+func (s *UserService) Store(req *request.StoreUserReq) (user *model.User, err error) {
+	user = &model.User{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		Email:     req.Email,
@@ -29,12 +34,10 @@ func (s *UserService) Store(req *request.StoreUserReq) (*model.User, error) {
 		Status:    req.Status,
 	}
 
-	return s.uRepo.Store(&user)
-}
-
-// Find is responsible for storing user data inside database.
-func (s *UserService) Find(userID uint) (*model.User, error) {
-	return s.uRepo.Find(userID)
+	if err := s.uRepo.Store(user); err != nil {
+		return nil, err
+	}
+	return
 }
 
 // Update is responsible for updating user's information inside database.
@@ -43,8 +46,6 @@ func (s *UserService) Update(req *request.UpdateUserReq, userID uint) error {
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		Email:     req.Email,
-		Password:  encrypt.ToMD5(req.Password),
-		Status:    req.Status,
 	}
 
 	return s.uRepo.Update(&user, userID)
