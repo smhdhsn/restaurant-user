@@ -42,17 +42,14 @@ func (h *UserHandler) Find(c *gin.Context) {
 	}
 
 	user, err := h.uServ.Find(uint(userID))
-	if err != nil {
-		switch err {
-		case contract.ErrRecordNotFound:
-			c.JSON(response.NewStatusNotFound())
-		default:
-			c.JSON(response.NewStatusInternalServerError())
-		}
-		return
+	switch err {
+	case nil:
+		c.JSON(response.NewStatusOK(user))
+	case contract.ErrRecordNotFound:
+		c.JSON(response.NewStatusNotFound())
+	default:
+		c.JSON(response.NewStatusInternalServerError())
 	}
-
-	c.JSON(response.NewStatusOK(user))
 }
 
 // Store is responsible for storing a user in the database.
@@ -70,17 +67,14 @@ func (h *UserHandler) Store(c *gin.Context) {
 	}
 
 	user, err := h.uServ.Store(req)
-	if err != nil {
-		switch err {
-		case contract.ErrDuplicateEntry:
-			c.JSON(response.NewStatusBadRequest("duplicate entry"))
-		default:
-			c.JSON(response.NewStatusInternalServerError())
-		}
-		return
+	switch err {
+	case nil:
+		c.JSON(response.NewStatusCreated(user))
+	case contract.ErrDuplicateEntry:
+		c.JSON(response.NewStatusBadRequest("duplicate entry"))
+	default:
+		c.JSON(response.NewStatusInternalServerError())
 	}
-
-	c.JSON(response.NewStatusCreated(user))
 }
 
 // Update is responsible for updating user's information inside database.
@@ -104,19 +98,16 @@ func (h *UserHandler) Update(c *gin.Context) {
 	}
 
 	err = h.uServ.Update(req, uint(userID))
-	if err != nil {
-		switch err {
-		case contract.ErrRecordNotFound:
-			c.JSON(response.NewStatusNotFound())
-		case contract.ErrDuplicateEntry:
-			c.JSON(response.NewStatusBadRequest("duplicate entry"))
-		default:
-			c.JSON(response.NewStatusInternalServerError())
-		}
-		return
+	switch err {
+	case nil:
+		c.Status(http.StatusNoContent)
+	case contract.ErrRecordNotFound:
+		c.JSON(response.NewStatusNotFound())
+	case contract.ErrDuplicateEntry:
+		c.JSON(response.NewStatusBadRequest("duplicate entry"))
+	default:
+		c.JSON(response.NewStatusInternalServerError())
 	}
-
-	c.Status(http.StatusNoContent)
 }
 
 // Destroy is responsible for deleting a user from the database.
@@ -128,15 +119,12 @@ func (h *UserHandler) Destroy(c *gin.Context) {
 	}
 
 	err = h.uServ.Destroy(uint(userID))
-	if err != nil {
-		switch err {
-		case contract.ErrRecordNotFound:
-			c.JSON(response.NewStatusNotFound())
-		default:
-			c.JSON(response.NewStatusInternalServerError())
-		}
-		return
+	switch err {
+	case nil:
+		c.Status(http.StatusNoContent)
+	case contract.ErrRecordNotFound:
+		c.JSON(response.NewStatusNotFound())
+	default:
+		c.JSON(response.NewStatusInternalServerError())
 	}
-
-	c.Status(http.StatusNoContent)
 }
