@@ -91,13 +91,13 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	userID, err := strconv.ParseUint(c.Params.ByName("userID"), 10, 32)
+	userID, err := helper.StrToUint(c.Params.ByName("userID"))
 	if err != nil {
 		c.JSON(response.NewStatusBadRequest("error on parsing userID"))
 		return
 	}
 
-	err = h.uServ.Update(req, uint(userID))
+	err = h.uServ.Update(req, userID)
 	switch err {
 	case nil:
 		c.Status(http.StatusNoContent)
@@ -112,13 +112,13 @@ func (h *UserHandler) Update(c *gin.Context) {
 
 // Destroy is responsible for deleting a user from the database.
 func (h *UserHandler) Destroy(c *gin.Context) {
-	userID, err := strconv.ParseUint(c.Params.ByName("userID"), 10, 32)
+	userID, err := helper.StrToUint(c.Params.ByName("userID"))
 	if err != nil {
 		c.JSON(response.NewStatusBadRequest("error on parsing userID"))
 		return
 	}
 
-	err = h.uServ.Destroy(uint(userID))
+	err = h.uServ.Destroy(userID)
 	switch err {
 	case nil:
 		c.Status(http.StatusNoContent)
