@@ -7,7 +7,7 @@ import (
 // This block contains error messages for various error types.
 const (
 	InternalErrMsg = "internal server error"
-	NotFoundErrMsg = "record not found"
+	NotFoundErrMsg = "not found"
 )
 
 // NewStatusOK is responsible for creating a 'ok' response.
