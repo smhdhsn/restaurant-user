@@ -19,10 +19,13 @@ func New(uResource *resource.UserResource) *Server {
 	apiRouter := r.Group("/api")
 
 	uRouter := apiRouter.Group("/users")
+
 	uRouter.POST("/", uResource.Source.Store)
 	uRouter.GET("/:userID", uResource.Source.Find)
 	uRouter.PUT("/:userID", uResource.Source.Update)
 	uRouter.DELETE("/:userID", uResource.Source.Destroy)
+
+	uRouter.GET("/search", uResource.Search.List)
 
 	return &Server{
 		r,

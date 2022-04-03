@@ -3,8 +3,9 @@ package user
 import (
 	"github.com/smhdhsn/bookstore-user/internal/model"
 	"github.com/smhdhsn/bookstore-user/internal/repository/contract"
-	"github.com/smhdhsn/bookstore-user/internal/request"
 	"github.com/smhdhsn/bookstore-user/util/encrypt"
+
+	uRequest "github.com/smhdhsn/bookstore-user/internal/request/user"
 )
 
 // SourceService contains repositories that will be used within this service.
@@ -19,14 +20,9 @@ func NewSourceService(uRepo contract.UserRepository) *SourceService {
 	}
 }
 
-// Find is responsible for storing user data inside database.
-func (s *SourceService) Find(userID uint) (*model.User, error) {
-	return s.uRepo.Find(userID)
-}
-
 // Store is responsible for storing user data inside database.
-func (s *SourceService) Store(req *request.StoreUserReq) (user *model.User, err error) {
-	user = &model.User{
+func (s *SourceService) Store(req uRequest.SourceStoreReq) (*model.User, error) {
+	user := &model.User{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		Email:     req.Email,
@@ -34,14 +30,21 @@ func (s *SourceService) Store(req *request.StoreUserReq) (user *model.User, err 
 		Status:    req.Status,
 	}
 
-	if err := s.uRepo.Store(user); err != nil {
-		return nil, err
-	}
-	return
+	return s.uRepo.Store(user)
+}
+
+// Find is responsible for storing user data inside database.
+func (s *SourceService) Find(userID uint) (*model.User, error) {
+	return s.uRepo.Find(userID)
+}
+
+// Destroy is responsible for deleting a user from the database.
+func (s *SourceService) Destroy(userID uint) error {
+	return s.uRepo.Destroy(userID)
 }
 
 // Update is responsible for updating user's information inside database.
-func (s *SourceService) Update(req *request.UpdateUserReq, userID uint) error {
+func (s *SourceService) Update(req uRequest.SourceUpdateReq, userID uint) error {
 	user := model.User{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
@@ -49,9 +52,4 @@ func (s *SourceService) Update(req *request.UpdateUserReq, userID uint) error {
 	}
 
 	return s.uRepo.Update(&user, userID)
-}
-
-// Destroy is responsible for deleting a user from the database.
-func (s *SourceService) Destroy(userID uint) error {
-	return s.uRepo.Destroy(userID)
 }

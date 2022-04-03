@@ -1,7 +1,7 @@
 package request
 
-// StoreUserReq is responsible for holding user's information to be stored into database.
-type StoreUserReq struct {
+// SourceStoreReq holds user request's schema for storing user into database.
+type SourceStoreReq struct {
 	FirstName string `json:"first_name" validate:"required"`
 	LastName  string `json:"last_name" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`
@@ -9,8 +9,8 @@ type StoreUserReq struct {
 	Status    string `json:"status" validate:"required,oneof=active inactive"`
 }
 
-// UpdateUserReq is responsible for holding user's data to be updated inside database.
-type UpdateUserReq struct {
+// SourceUpdateReq holds user request's schema for updating user's information inside database.
+type SourceUpdateReq struct {
 	FirstName string `json:"first_name" validate:"required"`
 	LastName  string `json:"last_name" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`

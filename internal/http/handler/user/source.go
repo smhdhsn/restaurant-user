@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/smhdhsn/bookstore-user/internal/http/helper"
 	"github.com/smhdhsn/bookstore-user/internal/repository/contract"
-	"github.com/smhdhsn/bookstore-user/internal/request"
 	"github.com/smhdhsn/bookstore-user/internal/validator"
 	"github.com/smhdhsn/bookstore-user/util/response"
 
+	uRequest "github.com/smhdhsn/bookstore-user/internal/request/user"
 	uService "github.com/smhdhsn/bookstore-user/internal/service/user"
 )
 
@@ -33,7 +33,7 @@ func (h *Source) Find(c *gin.Context) {
 		return
 	}
 
-	user, err := h.sourceServ.Find(uint(userID))
+	user, err := h.sourceServ.Find(userID)
 	switch err {
 	case nil:
 		c.JSON(response.NewStatusOK(user))
@@ -46,7 +46,7 @@ func (h *Source) Find(c *gin.Context) {
 
 // Store is responsible for storing a user in the database.
 func (h *Source) Store(c *gin.Context) {
-	req := new(request.StoreUserReq)
+	req := new(uRequest.SourceStoreReq)
 	if err := c.ShouldBindJSON(req); err != nil {
 		c.JSON(response.NewStatusBadRequest("error on binding JSON"))
 		return
@@ -59,7 +59,7 @@ func (h *Source) Store(c *gin.Context) {
 		return
 	}
 
-	user, err := h.sourceServ.Store(req)
+	user, err := h.sourceServ.Store(*req)
 	switch err {
 	case nil:
 		c.JSON(response.NewStatusCreated(user))
@@ -72,7 +72,7 @@ func (h *Source) Store(c *gin.Context) {
 
 // Update is responsible for updating user's information inside database.
 func (h *Source) Update(c *gin.Context) {
-	req := new(request.UpdateUserReq)
+	req := new(uRequest.SourceUpdateReq)
 	if err := c.ShouldBindJSON(req); err != nil {
 		c.JSON(response.NewStatusBadRequest("error on binding JSON"))
 		return
@@ -91,7 +91,7 @@ func (h *Source) Update(c *gin.Context) {
 		return
 	}
 
-	err = h.sourceServ.Update(req, userID)
+	err = h.sourceServ.Update(*req, userID)
 	switch err {
 	case nil:
 		c.Status(http.StatusNoContent)
