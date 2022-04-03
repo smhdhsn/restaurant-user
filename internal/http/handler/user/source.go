@@ -1,47 +1,39 @@
-package handler
+package user
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/smhdhsn/bookstore-user/internal/http/helper"
 	"github.com/smhdhsn/bookstore-user/internal/repository/contract"
 	"github.com/smhdhsn/bookstore-user/internal/request"
-	"github.com/smhdhsn/bookstore-user/internal/service"
+	"github.com/smhdhsn/bookstore-user/internal/validator"
 	"github.com/smhdhsn/bookstore-user/util/response"
+
+	uService "github.com/smhdhsn/bookstore-user/internal/service/user"
 )
 
-// validate holds the validator's functionalities.
-var validate *validator.Validate
-
-// UserHandler contains services that can be used within user handler.
-type UserHandler struct {
-	uServ *service.UserService
+// Source contains services that can be used within user source handler.
+type Source struct {
+	sourceServ *uService.SourceService
 }
 
-// init will be executed when this package is imported.
-func init() {
-	validate = validator.New()
-}
-
-// NewUserHandler creates a new user handler.
-func NewUserHandler(uServ *service.UserService) *UserHandler {
-	return &UserHandler{
-		uServ: uServ,
+// NewSource creates a new user source handler.
+func NewSource(sourceServ *uService.SourceService) *Source {
+	return &Source{
+		sourceServ: sourceServ,
 	}
 }
 
 // Find is responsible for finding a user inside the database.
-func (h *UserHandler) Find(c *gin.Context) {
-	userID, err := strconv.ParseUint(c.Params.ByName("userID"), 10, 32)
+func (h *Source) Find(c *gin.Context) {
+	userID, err := helper.StrToUint(c.Params.ByName("userID"))
 	if err != nil {
 		c.JSON(response.NewStatusBadRequest("error on parsing userID"))
 		return
 	}
 
-	user, err := h.uServ.Find(uint(userID))
+	user, err := h.sourceServ.Find(uint(userID))
 	switch err {
 	case nil:
 		c.JSON(response.NewStatusOK(user))
@@ -53,20 +45,21 @@ func (h *UserHandler) Find(c *gin.Context) {
 }
 
 // Store is responsible for storing a user in the database.
-func (h *UserHandler) Store(c *gin.Context) {
+func (h *Source) Store(c *gin.Context) {
 	req := new(request.StoreUserReq)
 	if err := c.ShouldBindJSON(req); err != nil {
 		c.JSON(response.NewStatusBadRequest("error on binding JSON"))
 		return
 	}
 
+	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
 		data := helper.ParseValidationErr(err)
 		c.JSON(response.NewStatusUnprocessableEntity(data))
 		return
 	}
 
-	user, err := h.uServ.Store(req)
+	user, err := h.sourceServ.Store(req)
 	switch err {
 	case nil:
 		c.JSON(response.NewStatusCreated(user))
@@ -78,13 +71,14 @@ func (h *UserHandler) Store(c *gin.Context) {
 }
 
 // Update is responsible for updating user's information inside database.
-func (h *UserHandler) Update(c *gin.Context) {
+func (h *Source) Update(c *gin.Context) {
 	req := new(request.UpdateUserReq)
 	if err := c.ShouldBindJSON(req); err != nil {
 		c.JSON(response.NewStatusBadRequest("error on binding JSON"))
 		return
 	}
 
+	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
 		data := helper.ParseValidationErr(err)
 		c.JSON(response.NewStatusUnprocessableEntity(data))
@@ -97,7 +91,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	err = h.uServ.Update(req, userID)
+	err = h.sourceServ.Update(req, userID)
 	switch err {
 	case nil:
 		c.Status(http.StatusNoContent)
@@ -111,14 +105,14 @@ func (h *UserHandler) Update(c *gin.Context) {
 }
 
 // Destroy is responsible for deleting a user from the database.
-func (h *UserHandler) Destroy(c *gin.Context) {
+func (h *Source) Destroy(c *gin.Context) {
 	userID, err := helper.StrToUint(c.Params.ByName("userID"))
 	if err != nil {
 		c.JSON(response.NewStatusBadRequest("error on parsing userID"))
 		return
 	}
 
-	err = h.uServ.Destroy(userID)
+	err = h.sourceServ.Destroy(userID)
 	switch err {
 	case nil:
 		c.Status(http.StatusNoContent)

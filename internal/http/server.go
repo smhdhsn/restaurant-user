@@ -5,8 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/smhdhsn/bookstore-user/internal/config"
-	"github.com/smhdhsn/bookstore-user/internal/http/handler"
-	"github.com/smhdhsn/bookstore-user/internal/service"
+	"github.com/smhdhsn/bookstore-user/internal/http/resource"
 )
 
 // Server contains server's services.
@@ -15,18 +14,15 @@ type Server struct {
 }
 
 // New creates a new http server.
-func New(uServ *service.UserService) *Server {
+func New(uResource *resource.UserResource) *Server {
 	r := gin.New()
 	apiRouter := r.Group("/api")
 
-	uHandler := handler.NewUserHandler(uServ)
-
 	uRouter := apiRouter.Group("/users")
-
-	uRouter.POST("/", uHandler.Store)
-	uRouter.GET("/:userID", uHandler.Find)
-	uRouter.PUT("/:userID", uHandler.Update)
-	uRouter.DELETE("/:userID", uHandler.Destroy)
+	uRouter.POST("/", uResource.Source.Store)
+	uRouter.GET("/:userID", uResource.Source.Find)
+	uRouter.PUT("/:userID", uResource.Source.Update)
+	uRouter.DELETE("/:userID", uResource.Source.Destroy)
 
 	return &Server{
 		r,

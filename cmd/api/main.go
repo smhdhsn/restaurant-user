@@ -6,8 +6,11 @@ import (
 	"github.com/smhdhsn/bookstore-user/internal/config"
 	"github.com/smhdhsn/bookstore-user/internal/db"
 	"github.com/smhdhsn/bookstore-user/internal/http"
+	"github.com/smhdhsn/bookstore-user/internal/http/resource"
 	"github.com/smhdhsn/bookstore-user/internal/repository/mysql"
-	"github.com/smhdhsn/bookstore-user/internal/service"
+
+	uHandler "github.com/smhdhsn/bookstore-user/internal/http/handler/user"
+	uService "github.com/smhdhsn/bookstore-user/internal/service/user"
 )
 
 // main is the application's kernel.
@@ -33,10 +36,20 @@ func main() {
 	uRepo := mysql.NewUserRepo(dbConn)
 
 	// instanciate services
-	uServ := service.NewUserService(uRepo)
+	uSourceService := uService.NewSourceService(uRepo)
+	uSearchService := uService.NewSearchService(uRepo)
+	uAuthService := uService.NewAuthService(uRepo)
 
 	// instanciate handlers
-	httpServer := http.New(uServ)
+	uSourceHandler := uHandler.NewSource(uSourceService)
+	uSearchHandler := uHandler.NewSearch(uSearchService)
+	uAuthHandler := uHandler.NewAuth(uAuthService)
+
+	// instanciate resources
+	uResource := resource.NewUserResource(uSourceHandler, uSearchHandler, uAuthHandler)
+
+	// instanciate server
+	httpServer := http.New(uResource)
 	if err != nil {
 		log.Fatal(err)
 	}
