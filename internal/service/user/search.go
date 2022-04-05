@@ -35,14 +35,14 @@ func (s *SearchService) FindBy(req uRequest.SearchListReq) ([]*uTransform.Search
 		return nil, contract.ErrRecordNotFound
 	}
 
-	transform := make([]*uTransform.SearchList, 0)
-	for _, u := range uList {
-		transform = append(transform, &uTransform.SearchList{
+	transform := make([]*uTransform.SearchList, len(uList))
+	for i, u := range uList {
+		transform[i] = &uTransform.SearchList{
 			ID:        u.ID,
 			Status:    u.Status,
 			CreatedAt: u.CreatedAt,
 			UpdatedAt: u.UpdatedAt,
-		})
+		}
 	}
 
 	return transform, nil
