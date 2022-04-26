@@ -32,23 +32,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// instanciate repositories
+	// instantiate repositories
 	uRepo := mysql.NewUserRepo(dbConn)
 
-	// instanciate services
+	// instantiate services
 	uSourceService := uService.NewSourceService(uRepo)
 	uSearchService := uService.NewSearchService(uRepo)
 	uAuthService := uService.NewAuthService(uRepo)
 
-	// instanciate handlers
+	// instantiate handlers
 	uSourceHandler := uHandler.NewSource(uSourceService)
 	uSearchHandler := uHandler.NewSearch(uSearchService)
 	uAuthHandler := uHandler.NewAuth(uAuthService)
 
-	// instanciate resources
+	// instantiate resources
 	uResource := resource.NewUserResource(uSourceHandler, uSearchHandler, uAuthHandler)
 
-	// instanciate server
+	// instantiate server
 	httpServer := http.New(uResource)
 	if err != nil {
 		log.Fatal(err)
