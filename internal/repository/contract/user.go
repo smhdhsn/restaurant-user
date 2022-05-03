@@ -6,9 +6,10 @@ import (
 
 // UserRepository is the interface representing user repository or it's mock.
 type UserRepository interface {
-	Store(*model.User) (*model.User, error)
-	FindBy(FilterBy) ([]*model.User, error)
-	Find(uint) (*model.User, error)
-	Update(*model.User, uint) error
+	Store(*model.UserDTO) (*model.UserDTO, error)
+	FindBy(FilterBy) (model.UserDTOList, error)
+	Inspect(uint) (*model.UserDTO, error)
+	Find(uint) (*model.UserDTO, error)
+	Update(*model.UserDTO, uint) error
 	Destroy(uint) error
 }

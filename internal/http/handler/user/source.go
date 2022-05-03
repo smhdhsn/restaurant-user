@@ -1,12 +1,15 @@
 package user
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/smhdhsn/bookstore-user/internal/config"
 	"github.com/smhdhsn/bookstore-user/internal/http/helper"
 	"github.com/smhdhsn/bookstore-user/internal/repository/contract"
 	"github.com/smhdhsn/bookstore-user/internal/validator"
+	"github.com/smhdhsn/bookstore-user/util/encryption"
 	"github.com/smhdhsn/bookstore-user/util/response"
 
 	uRequest "github.com/smhdhsn/bookstore-user/internal/request/user"
@@ -16,32 +19,64 @@ import (
 // Source contains services that can be used within user source handler.
 type Source struct {
 	sourceServ *uService.SourceService
+	hashConf   config.HashConf
 }
 
 // NewSource creates a new user source handler.
-func NewSource(sourceServ *uService.SourceService) *Source {
+func NewSource(sourceServ *uService.SourceService, hashConf config.HashConf) *Source {
 	return &Source{
 		sourceServ: sourceServ,
+		hashConf:   hashConf,
 	}
 }
 
-// Find is responsible for finding a user inside the database.
-func (h *Source) Find(c *gin.Context) {
+// Inspect is responsible for fetching user's full details from database.
+func (h *Source) Inspect(c *gin.Context) {
 	userID, err := helper.StrToUint(c.Params.ByName("userID"))
 	if err != nil {
 		c.JSON(response.NewStatusBadRequest("error on parsing userID"))
 		return
 	}
 
-	user, err := h.sourceServ.Find(userID)
-	switch err {
-	case nil:
-		c.JSON(response.NewStatusOK(user))
-	case contract.ErrRecordNotFound:
-		c.JSON(response.NewStatusNotFound())
-	default:
-		c.JSON(response.NewStatusInternalServerError())
+	user, err := h.sourceServ.Inspect(userID)
+	if err != nil {
+		if errors.Is(err, contract.ErrRecordNotFound) {
+			c.JSON(response.NewStatusNotFound())
+		} else {
+			c.JSON(response.NewStatusInternalServerError())
+		}
+		return
 	}
+
+	data := user.ToInternalResp()
+	c.JSON(response.NewStatusOK(data))
+}
+
+// Find is responsible for fetching user's limited details from database.
+func (h *Source) Find(c *gin.Context) {
+	userID, err := encryption.DecodeHashIDs(
+		c.Params.ByName("userCode"),
+		h.hashConf.Alphabet,
+		h.hashConf.Salt,
+		h.hashConf.MinLength,
+	)
+	if err != nil {
+		c.JSON(response.NewStatusBadRequest("error on decoding userCode"))
+		return
+	}
+
+	user, err := h.sourceServ.Find(userID)
+	if err != nil {
+		if errors.Is(err, contract.ErrRecordNotFound) {
+			c.JSON(response.NewStatusNotFound())
+		} else {
+			c.JSON(response.NewStatusInternalServerError())
+		}
+		return
+	}
+
+	data := user.ToExternalResp(h.hashConf)
+	c.JSON(response.NewStatusOK(data))
 }
 
 // Store is responsible for storing a user in the database.
@@ -60,14 +95,17 @@ func (h *Source) Store(c *gin.Context) {
 	}
 
 	user, err := h.sourceServ.Store(*req)
-	switch err {
-	case nil:
-		c.JSON(response.NewStatusCreated(user))
-	case contract.ErrDuplicateEntry:
-		c.JSON(response.NewStatusBadRequest("duplicate entry"))
-	default:
-		c.JSON(response.NewStatusInternalServerError())
+	if err != nil {
+		if errors.Is(err, contract.ErrDuplicateEntry) {
+			c.JSON(response.NewStatusBadRequest("duplicate entry"))
+		} else {
+			c.JSON(response.NewStatusInternalServerError())
+		}
+		return
 	}
+
+	data := user.ToInternalResp()
+	c.JSON(response.NewStatusCreated(data))
 }
 
 // Update is responsible for updating user's information inside database.
@@ -92,16 +130,18 @@ func (h *Source) Update(c *gin.Context) {
 	}
 
 	err = h.sourceServ.Update(*req, userID)
-	switch err {
-	case nil:
-		c.Status(http.StatusNoContent)
-	case contract.ErrRecordNotFound:
-		c.JSON(response.NewStatusNotFound())
-	case contract.ErrDuplicateEntry:
-		c.JSON(response.NewStatusBadRequest("duplicate entry"))
-	default:
-		c.JSON(response.NewStatusInternalServerError())
+	if err != nil {
+		if errors.Is(err, contract.ErrRecordNotFound) {
+			c.JSON(response.NewStatusNotFound())
+		} else if errors.Is(err, contract.ErrDuplicateEntry) {
+			c.JSON(response.NewStatusBadRequest("duplicate entry"))
+		} else {
+			c.JSON(response.NewStatusInternalServerError())
+		}
+		return
 	}
+
+	c.Status(http.StatusNoContent)
 }
 
 // Destroy is responsible for deleting a user from the database.
@@ -113,12 +153,14 @@ func (h *Source) Destroy(c *gin.Context) {
 	}
 
 	err = h.sourceServ.Destroy(userID)
-	switch err {
-	case nil:
-		c.Status(http.StatusNoContent)
-	case contract.ErrRecordNotFound:
-		c.JSON(response.NewStatusNotFound())
-	default:
-		c.JSON(response.NewStatusInternalServerError())
+	if err != nil {
+		if errors.Is(err, contract.ErrRecordNotFound) {
+			c.JSON(response.NewStatusNotFound())
+		} else {
+			c.JSON(response.NewStatusInternalServerError())
+		}
+		return
 	}
+
+	c.Status(http.StatusNoContent)
 }

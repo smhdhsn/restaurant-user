@@ -8,3 +8,8 @@ db:
   name: "bookstore"
   user: "bookstore"
   pass: "bookstore"
+
+hash:
+  min_length: 6
+  salt: "800k570reh45h5417"
+  alphabet: "abcdefghijklmnopqrstuvwxyz1234567890"

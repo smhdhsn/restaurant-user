@@ -16,6 +16,7 @@ func NewStatusOK(data any) (int, dataResp) {
 		Status: http.StatusOK,
 		Data:   data,
 	}
+
 	return resp.Status, resp
 }
 
@@ -25,6 +26,7 @@ func NewStatusCreated(data any) (int, dataResp) {
 		Status: http.StatusCreated,
 		Data:   data,
 	}
+
 	return resp.Status, resp
 }
 
@@ -34,6 +36,7 @@ func NewStatusBadRequest(msg string) (int, messageResp) {
 		Status:  http.StatusBadRequest,
 		Message: msg,
 	}
+
 	return resp.Status, resp
 }
 
@@ -43,6 +46,7 @@ func NewStatusNotFound() (int, messageResp) {
 		Status:  http.StatusNotFound,
 		Message: NotFoundErrMsg,
 	}
+
 	return resp.Status, resp
 }
 
@@ -52,6 +56,7 @@ func NewStatusUnprocessableEntity(data any) (int, dataResp) {
 		Status: http.StatusUnprocessableEntity,
 		Data:   data,
 	}
+
 	return resp.Status, resp
 }
 
@@ -61,5 +66,6 @@ func NewStatusInternalServerError() (int, messageResp) {
 		Status:  http.StatusInternalServerError,
 		Message: InternalErrMsg,
 	}
+
 	return resp.Status, resp
 }

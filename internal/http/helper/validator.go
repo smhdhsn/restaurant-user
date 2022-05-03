@@ -12,5 +12,6 @@ func ParseValidationErr(err error) map[string]string {
 	for _, err := range err.(validator.ValidationErrors) {
 		data[err.Field()] = fmt.Sprintf("validation error on '%s' rule", err.Tag())
 	}
+
 	return data
 }

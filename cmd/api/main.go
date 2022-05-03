@@ -7,6 +7,7 @@ import (
 	"github.com/smhdhsn/bookstore-user/internal/db"
 	"github.com/smhdhsn/bookstore-user/internal/http"
 	"github.com/smhdhsn/bookstore-user/internal/http/resource"
+	"github.com/smhdhsn/bookstore-user/internal/model"
 	"github.com/smhdhsn/bookstore-user/internal/repository/mysql"
 
 	uHandler "github.com/smhdhsn/bookstore-user/internal/http/handler/user"
@@ -32,8 +33,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// instantiate models
+	uModel := new(model.User)
+
 	// instantiate repositories
-	uRepo := mysql.NewUserRepo(dbConn)
+	uRepo := mysql.NewUserRepo(dbConn, uModel)
 
 	// instantiate services
 	uSourceService := uService.NewSourceService(uRepo)
@@ -41,8 +45,8 @@ func main() {
 	uAuthService := uService.NewAuthService(uRepo)
 
 	// instantiate handlers
-	uSourceHandler := uHandler.NewSource(uSourceService)
-	uSearchHandler := uHandler.NewSearch(uSearchService)
+	uSourceHandler := uHandler.NewSource(uSourceService, conf.Hash)
+	uSearchHandler := uHandler.NewSearch(uSearchService, conf.Hash)
 	uAuthHandler := uHandler.NewAuth(uAuthService)
 
 	// instantiate resources
