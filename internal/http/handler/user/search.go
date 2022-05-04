@@ -29,8 +29,34 @@ func NewSearch(searchService *uService.SearchService, hashConf config.HashConf) 
 	}
 }
 
-// List is responsible for finding every user with a given status from the database.
+// List is responsible for fetching user's full details with a given status from the database.
 func (h *Search) List(c *gin.Context) {
+	req := new(uRequest.SearchListReq)
+	req.Status = c.Query("status")
+
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		data := helper.ParseValidationErr(err)
+		c.JSON(response.NewStatusUnprocessableEntity(data))
+		return
+	}
+
+	uList, err := h.searchService.FindBy(*req)
+	if err != nil {
+		if errors.Is(err, contract.ErrRecordNotFound) {
+			c.JSON(response.NewStatusNotFound())
+		} else {
+			c.JSON(response.NewStatusInternalServerError())
+		}
+		return
+	}
+
+	data := uList.ToInternalResp()
+	c.JSON(response.NewStatusOK(data))
+}
+
+// Index is responsible for fetching limited user data for every user with a given status from the database.
+func (h *Search) Index(c *gin.Context) {
 	req := new(uRequest.SearchListReq)
 	req.Status = c.Query("status")
 

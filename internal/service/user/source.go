@@ -33,14 +33,14 @@ func (s *SourceService) Store(req uRequest.SourceStoreReq) (*model.UserDTO, erro
 	return s.uRepo.Store(user)
 }
 
-// Inspect is responsible for fetching user's full details from database.
-func (s *SourceService) Inspect(userID uint) (*model.UserDTO, error) {
-	return s.uRepo.Inspect(userID)
-}
-
-// Find is responsible for fetching user's limited details from database.
+// Find is responsible for fetching user's full details from database.
 func (s *SourceService) Find(userID uint) (*model.UserDTO, error) {
 	return s.uRepo.Find(userID)
+}
+
+// Show is responsible for fetching user's limited details from database.
+func (s *SourceService) Show(userID uint) (*model.UserDTO, error) {
+	return s.uRepo.Show(userID)
 }
 
 // Destroy is responsible for deleting a user from the database.

@@ -51,8 +51,8 @@ func (r *UserRepo) FindBy(req contract.FilterBy) (model.UserDTOList, error) {
 	return uList, nil
 }
 
-// Inspect is responsible for fetching user's full details from database.
-func (r *UserRepo) Inspect(userID uint) (*model.UserDTO, error) {
+// Find is responsible for fetching user's full details from database.
+func (r *UserRepo) Find(userID uint) (*model.UserDTO, error) {
 	u := new(model.UserDTO)
 	err := r.db.Model(r.model).First(u, userID).Error
 	if err != nil {
@@ -66,8 +66,8 @@ func (r *UserRepo) Inspect(userID uint) (*model.UserDTO, error) {
 	return u, nil
 }
 
-// Find is responsible for fetching user's limited details from database.
-func (r *UserRepo) Find(userID uint) (*model.UserDTO, error) {
+// Show is responsible for fetching user's limited details from database.
+func (r *UserRepo) Show(userID uint) (*model.UserDTO, error) {
 	u := new(model.UserDTO)
 	err := r.db.Model(r.model).Select("id", "status", "created_at", "updated_at").First(u, userID).Error
 	if err != nil {

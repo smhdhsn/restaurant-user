@@ -30,15 +30,15 @@ func NewSource(sourceServ *uService.SourceService, hashConf config.HashConf) *So
 	}
 }
 
-// Inspect is responsible for fetching user's full details from database.
-func (h *Source) Inspect(c *gin.Context) {
+// Find is responsible for fetching user's full details from database.
+func (h *Source) Find(c *gin.Context) {
 	userID, err := helper.StrToUint(c.Params.ByName("userID"))
 	if err != nil {
 		c.JSON(response.NewStatusBadRequest("error on parsing userID"))
 		return
 	}
 
-	user, err := h.sourceServ.Inspect(userID)
+	user, err := h.sourceServ.Find(userID)
 	if err != nil {
 		if errors.Is(err, contract.ErrRecordNotFound) {
 			c.JSON(response.NewStatusNotFound())
@@ -52,8 +52,8 @@ func (h *Source) Inspect(c *gin.Context) {
 	c.JSON(response.NewStatusOK(data))
 }
 
-// Find is responsible for fetching user's limited details from database.
-func (h *Source) Find(c *gin.Context) {
+// Show is responsible for fetching user's limited details from database.
+func (h *Source) Show(c *gin.Context) {
 	userID, err := encryption.DecodeHashIDs(
 		c.Params.ByName("userCode"),
 		h.hashConf.Alphabet,
@@ -65,7 +65,7 @@ func (h *Source) Find(c *gin.Context) {
 		return
 	}
 
-	user, err := h.sourceServ.Find(userID)
+	user, err := h.sourceServ.Show(userID)
 	if err != nil {
 		if errors.Is(err, contract.ErrRecordNotFound) {
 			c.JSON(response.NewStatusNotFound())

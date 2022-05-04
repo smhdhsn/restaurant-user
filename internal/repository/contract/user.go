@@ -8,8 +8,8 @@ import (
 type UserRepository interface {
 	Store(*model.UserDTO) (*model.UserDTO, error)
 	FindBy(FilterBy) (model.UserDTOList, error)
-	Inspect(uint) (*model.UserDTO, error)
 	Find(uint) (*model.UserDTO, error)
+	Show(uint) (*model.UserDTO, error)
 	Update(*model.UserDTO, uint) error
 	Destroy(uint) error
 }
