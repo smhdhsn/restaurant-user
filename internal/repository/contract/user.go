@@ -10,6 +10,6 @@ type UserRepository interface {
 	FindBy(FilterBy) (model.UserDTOList, error)
 	Find(uint) (*model.UserDTO, error)
 	Show(uint) (*model.UserDTO, error)
-	Update(*model.UserDTO, uint) error
+	Update(*model.UserDTO) error
 	Destroy(uint) error
 }

@@ -82,8 +82,8 @@ func (r *UserRepo) Show(userID uint) (*model.UserDTO, error) {
 }
 
 // Update is responsible for updating user's information inside database.
-func (r *UserRepo) Update(user *model.UserDTO, userID uint) error {
-	tx := r.db.Model(r.model).Where("id = ?", userID).Updates(user)
+func (r *UserRepo) Update(user *model.UserDTO) error {
+	tx := r.db.Model(r.model).Where("id = ?", user.ID).Updates(user)
 	if tx.Error != nil && tx.Error.(*mysql.MySQLError).Number == contract.DuplicateEntryErrNum {
 		return contract.ErrDuplicateEntry
 	} else if tx.RowsAffected == 0 {

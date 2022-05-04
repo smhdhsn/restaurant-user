@@ -1,5 +1,5 @@
 up:
-	./script/docker_up.sh $(ENV)
+	./script/docker_up.sh $(APP_MODE)
 bash:
 	docker exec -it bookstore_app bash
 build:

@@ -12,6 +12,8 @@ import (
 	"github.com/smhdhsn/bookstore-user/util/encryption"
 	"github.com/smhdhsn/bookstore-user/util/response"
 
+	log "github.com/smhdhsn/bookstore-user/internal/logger"
+
 	uRequest "github.com/smhdhsn/bookstore-user/internal/request/user"
 	uService "github.com/smhdhsn/bookstore-user/internal/service/user"
 )
@@ -44,6 +46,7 @@ func (h *Source) Find(c *gin.Context) {
 			c.JSON(response.NewStatusNotFound())
 		} else {
 			c.JSON(response.NewStatusInternalServerError())
+			log.Error(err)
 		}
 		return
 	}
@@ -71,6 +74,7 @@ func (h *Source) Show(c *gin.Context) {
 			c.JSON(response.NewStatusNotFound())
 		} else {
 			c.JSON(response.NewStatusInternalServerError())
+			log.Error(err)
 		}
 		return
 	}
@@ -100,6 +104,7 @@ func (h *Source) Store(c *gin.Context) {
 			c.JSON(response.NewStatusBadRequest("duplicate entry"))
 		} else {
 			c.JSON(response.NewStatusInternalServerError())
+			log.Error(err)
 		}
 		return
 	}
@@ -137,6 +142,7 @@ func (h *Source) Update(c *gin.Context) {
 			c.JSON(response.NewStatusBadRequest("duplicate entry"))
 		} else {
 			c.JSON(response.NewStatusInternalServerError())
+			log.Error(err)
 		}
 		return
 	}
@@ -158,6 +164,7 @@ func (h *Source) Destroy(c *gin.Context) {
 			c.JSON(response.NewStatusNotFound())
 		} else {
 			c.JSON(response.NewStatusInternalServerError())
+			log.Error(err)
 		}
 		return
 	}

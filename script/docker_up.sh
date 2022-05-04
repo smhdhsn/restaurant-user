@@ -7,17 +7,17 @@ yellow=`tput setaf 3`
 blue=`tput setaf 4`
 
 # Finding configuration file for chosen environment.
-if [ $ENV ]; then
-    if [[ -f "config/$ENV.yml" || -f "config/$ENV.yaml" ]]; then
-        echo "${green}Application is running on ${blue}${ENV}${green} environment."
+if [ $APP_MODE ]; then
+    if [[ -f "config/$APP_MODE.yml" || -f "config/$APP_MODE.yaml" ]]; then
+        echo "${green}Application is running on ${blue}${APP_MODE}${green} environment."
     else
-        echo "${red}Failed to find configurations for ${yellow}${ENV}${red} environment.${reset}"
+        echo "${red}Failed to find configurations for ${yellow}${APP_MODE}${red} environment.${reset}"
         exit;
     fi
 else
     if [[ -f "config/local.yml" || -f "config/local.yaml" ]]; then
-        export ENV="local"
-        echo "${green}Application is running on ${blue}${ENV}${green} environment.${reset}"
+        export APP_MODE="local"
+        echo "${green}Application is running on ${blue}${APP_MODE}${green} environment.${reset}"
     else
         echo "${red}Failed to find any configurations for any environment!"
         echo "Please consider making one under path ${yellow}config/${reset}"
@@ -26,13 +26,13 @@ else
 fi
 
 # Finding docker-compose file related to chosen environment.
-if [ -f "deploy/${ENV}/docker-compose.yaml" ]; then
-    composeFile="$(pwd)/deploy/${ENV}/docker-compose.yaml"
-elif [ -f "deploy/${ENV}/docker-compose.yml" ]; then
-    composeFile="$(pwd)/deploy/${ENV}/docker-compose.yml"
+if [ -f "deploy/${APP_MODE}/docker-compose.yaml" ]; then
+    composeFile="$(pwd)/deploy/${APP_MODE}/docker-compose.yaml"
+elif [ -f "deploy/${APP_MODE}/docker-compose.yml" ]; then
+    composeFile="$(pwd)/deploy/${APP_MODE}/docker-compose.yml"
 else
     echo "${red}Failed to find any docker-compose file for your environment!"
-    echo "Please consider making one under path ${yellow}deploy/${ENV}/${reset}"
+    echo "Please consider making one under path ${yellow}deploy/${APP_MODE}/${reset}"
     exit;
 fi
 

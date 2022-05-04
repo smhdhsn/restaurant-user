@@ -51,10 +51,11 @@ func (s *SourceService) Destroy(userID uint) error {
 // Update is responsible for updating user's information inside database.
 func (s *SourceService) Update(req uRequest.SourceUpdateReq, userID uint) error {
 	user := model.UserDTO{
+		ID:        userID,
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		Email:     req.Email,
 	}
 
-	return s.uRepo.Update(&user, userID)
+	return s.uRepo.Update(&user)
 }

@@ -11,6 +11,8 @@ import (
 	"github.com/smhdhsn/bookstore-user/internal/validator"
 	"github.com/smhdhsn/bookstore-user/util/response"
 
+	log "github.com/smhdhsn/bookstore-user/internal/logger"
+
 	uRequest "github.com/smhdhsn/bookstore-user/internal/request/user"
 	uService "github.com/smhdhsn/bookstore-user/internal/service/user"
 )
@@ -47,7 +49,9 @@ func (h *Search) List(c *gin.Context) {
 			c.JSON(response.NewStatusNotFound())
 		} else {
 			c.JSON(response.NewStatusInternalServerError())
+			log.Error(err)
 		}
+
 		return
 	}
 
@@ -73,7 +77,9 @@ func (h *Search) Index(c *gin.Context) {
 			c.JSON(response.NewStatusNotFound())
 		} else {
 			c.JSON(response.NewStatusInternalServerError())
+			log.Error(err)
 		}
+
 		return
 	}
 

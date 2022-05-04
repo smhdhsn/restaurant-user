@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/smhdhsn/bookstore-user/internal/config"
 	"github.com/smhdhsn/bookstore-user/internal/http/resource"
+
+	log "github.com/smhdhsn/bookstore-user/internal/logger"
 )
 
 // Server contains server's services.
@@ -17,8 +19,8 @@ type Server struct {
 // New creates a new http server.
 func New(uResource *resource.UserResource) *Server {
 	s := new(Server)
-	s.uResource = uResource
 	s.router = gin.New()
+	s.uResource = uResource
 
 	pvGroup := s.router.Group("/_/")
 	s.mapUserPV(pvGroup)
@@ -54,5 +56,6 @@ func (s *Server) mapUserPB(r *gin.RouterGroup) {
 
 // Listen is responsible for starting the HTTP server.
 func (s *Server) Listen(conf config.ServerConf) error {
+	log.Info(fmt.Sprintf("server started listening on port <%d>", conf.Port))
 	return s.router.Run(fmt.Sprintf("%s:%d", conf.Host, conf.Port))
 }

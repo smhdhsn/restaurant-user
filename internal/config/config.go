@@ -8,7 +8,7 @@ import (
 )
 
 // envVar holds the environment variable for application's mode.
-const envVar = "APP_ENV"
+const envVar = "APP_MODE"
 
 // defaultMode holds the default configuration file's name.
 const defaultMode = "local"

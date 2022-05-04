@@ -1,14 +1,14 @@
 package main
 
 import (
-	"log"
-
 	"github.com/smhdhsn/bookstore-user/internal/config"
 	"github.com/smhdhsn/bookstore-user/internal/db"
 	"github.com/smhdhsn/bookstore-user/internal/http"
 	"github.com/smhdhsn/bookstore-user/internal/http/resource"
 	"github.com/smhdhsn/bookstore-user/internal/model"
 	"github.com/smhdhsn/bookstore-user/internal/repository/mysql"
+
+	log "github.com/smhdhsn/bookstore-user/internal/logger"
 
 	uHandler "github.com/smhdhsn/bookstore-user/internal/http/handler/user"
 	uService "github.com/smhdhsn/bookstore-user/internal/service/user"
