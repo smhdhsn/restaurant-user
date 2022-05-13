@@ -1,41 +1,41 @@
 services:
   db:
     image: mysql:8
-    container_name: bookstore_db
+    container_name: restaurant_db
     networks:
-      - bookstore
+      - restaurant
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "true"
-      MYSQL_USER: bookstore
-      MYSQL_PASSWORD: bookstore
-      MYSQL_DATABASE: bookstore
+      MYSQL_USER: restaurant
+      MYSQL_PASSWORD: restaurant
+      MYSQL_DATABASE: restaurant
     ports:
       - 3306:3306
     volumes:
-      - bookstore:/var/lib/mysql
+      - restaurant:/var/lib/mysql
     restart: on-failure
 
   app:
     build:
       context: ../../
       dockerfile: deploy/Dockerfile
-    container_name: bookstore_app
+    container_name: restaurant_app
     environment:
       GIN_MODE: $GIN_MODE
       APP_MODE: $APP_MODE
     ports:
       - 9000:9000
     networks:
-      - bookstore
+      - restaurant
     depends_on:
       - db
     restart: on-failure
     command: "/app/api"
 
 networks:
-  bookstore:
-    name: bookstore
+  restaurant:
+    name: restaurant
 
 volumes:
-  bookstore:
-    name: bookstore
+  restaurant:
+    name: restaurant

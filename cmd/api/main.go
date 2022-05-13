@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/smhdhsn/bookstore-user/internal/config"
-	"github.com/smhdhsn/bookstore-user/internal/db"
-	"github.com/smhdhsn/bookstore-user/internal/http"
-	"github.com/smhdhsn/bookstore-user/internal/http/resource"
-	"github.com/smhdhsn/bookstore-user/internal/model"
-	"github.com/smhdhsn/bookstore-user/internal/repository/mysql"
+	"github.com/smhdhsn/restaurant-user/internal/config"
+	"github.com/smhdhsn/restaurant-user/internal/db"
+	"github.com/smhdhsn/restaurant-user/internal/http"
+	"github.com/smhdhsn/restaurant-user/internal/http/resource"
+	"github.com/smhdhsn/restaurant-user/internal/model"
+	"github.com/smhdhsn/restaurant-user/internal/repository/mysql"
 
-	log "github.com/smhdhsn/bookstore-user/internal/logger"
+	log "github.com/smhdhsn/restaurant-user/internal/logger"
 
-	uHandler "github.com/smhdhsn/bookstore-user/internal/http/handler/user"
-	uService "github.com/smhdhsn/bookstore-user/internal/service/user"
+	uHandler "github.com/smhdhsn/restaurant-user/internal/http/handler/user"
+	uService "github.com/smhdhsn/restaurant-user/internal/service/user"
 )
 
 // main is the application's kernel.

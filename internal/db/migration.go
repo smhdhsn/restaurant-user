@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/smhdhsn/bookstore-user/internal/model"
+	"github.com/smhdhsn/restaurant-user/internal/model"
 	"gorm.io/gorm"
 )
 

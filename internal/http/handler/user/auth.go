@@ -1,7 +1,7 @@
 package user
 
 import (
-	uService "github.com/smhdhsn/bookstore-user/internal/service/user"
+	uService "github.com/smhdhsn/restaurant-user/internal/service/user"
 )
 
 // Auth contains services that can be used within user auth handler.

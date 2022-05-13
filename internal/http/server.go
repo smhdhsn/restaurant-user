@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/smhdhsn/bookstore-user/internal/config"
-	"github.com/smhdhsn/bookstore-user/internal/http/resource"
+	"github.com/smhdhsn/restaurant-user/internal/config"
+	"github.com/smhdhsn/restaurant-user/internal/http/resource"
 
-	log "github.com/smhdhsn/bookstore-user/internal/logger"
+	log "github.com/smhdhsn/restaurant-user/internal/logger"
 )
 
 // Server contains server's services.

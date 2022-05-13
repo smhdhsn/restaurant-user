@@ -38,5 +38,5 @@ fi
 
 DOCKER_BUILDKIT=1 docker-compose \
     --file $composeFile \
-    --project-name bookstore_user \
+    --project-name restaurant_user \
     up -d --build

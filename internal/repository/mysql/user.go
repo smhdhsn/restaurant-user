@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/smhdhsn/bookstore-user/internal/model"
-	"github.com/smhdhsn/bookstore-user/internal/repository/contract"
+	"github.com/smhdhsn/restaurant-user/internal/model"
+	"github.com/smhdhsn/restaurant-user/internal/repository/contract"
 	"gorm.io/gorm"
 )
 

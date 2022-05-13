@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 
-	"github.com/smhdhsn/bookstore-user/internal/config"
+	"github.com/smhdhsn/restaurant-user/internal/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

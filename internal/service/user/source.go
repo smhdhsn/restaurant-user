@@ -1,11 +1,11 @@
 package user
 
 import (
-	"github.com/smhdhsn/bookstore-user/internal/model"
-	"github.com/smhdhsn/bookstore-user/internal/repository/contract"
-	"github.com/smhdhsn/bookstore-user/util/encryption"
+	"github.com/smhdhsn/restaurant-user/internal/model"
+	"github.com/smhdhsn/restaurant-user/internal/repository/contract"
+	"github.com/smhdhsn/restaurant-user/util/encryption"
 
-	uRequest "github.com/smhdhsn/bookstore-user/internal/request/user"
+	uRequest "github.com/smhdhsn/restaurant-user/internal/request/user"
 )
 
 // SourceService contains repositories that will be used within this service.

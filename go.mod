@@ -1,4 +1,4 @@
-module github.com/smhdhsn/bookstore-user
+module github.com/smhdhsn/restaurant-user
 
 go 1.18
 

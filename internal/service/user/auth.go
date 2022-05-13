@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/smhdhsn/bookstore-user/internal/repository/contract"
+	"github.com/smhdhsn/restaurant-user/internal/repository/contract"
 )
 
 // AuthService contains repositories that will be used within this service.

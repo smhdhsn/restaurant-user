@@ -3,8 +3,8 @@ package model
 import (
 	"time"
 
-	"github.com/smhdhsn/bookstore-user/internal/config"
-	"github.com/smhdhsn/bookstore-user/util/encryption"
+	"github.com/smhdhsn/restaurant-user/internal/config"
+	"github.com/smhdhsn/restaurant-user/util/encryption"
 )
 
 // User represents the users table on database.

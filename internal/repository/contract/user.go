@@ -1,7 +1,7 @@
 package contract
 
 import (
-	"github.com/smhdhsn/bookstore-user/internal/model"
+	"github.com/smhdhsn/restaurant-user/internal/model"
 )
 
 // UserRepository is the interface representing user repository or it's mock.

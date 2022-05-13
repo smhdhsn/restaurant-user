@@ -1,7 +1,7 @@
 package resource
 
 import (
-	"github.com/smhdhsn/bookstore-user/internal/http/handler/user"
+	"github.com/smhdhsn/restaurant-user/internal/http/handler/user"
 )
 
 // UserResource holds user resource's handlers.

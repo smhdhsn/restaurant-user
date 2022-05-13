@@ -5,16 +5,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/smhdhsn/bookstore-user/internal/config"
-	"github.com/smhdhsn/bookstore-user/internal/http/helper"
-	"github.com/smhdhsn/bookstore-user/internal/repository/contract"
-	"github.com/smhdhsn/bookstore-user/internal/validator"
-	"github.com/smhdhsn/bookstore-user/util/response"
+	"github.com/smhdhsn/restaurant-user/internal/config"
+	"github.com/smhdhsn/restaurant-user/internal/http/helper"
+	"github.com/smhdhsn/restaurant-user/internal/repository/contract"
+	"github.com/smhdhsn/restaurant-user/internal/validator"
+	"github.com/smhdhsn/restaurant-user/util/response"
 
-	log "github.com/smhdhsn/bookstore-user/internal/logger"
+	log "github.com/smhdhsn/restaurant-user/internal/logger"
 
-	uRequest "github.com/smhdhsn/bookstore-user/internal/request/user"
-	uService "github.com/smhdhsn/bookstore-user/internal/service/user"
+	uRequest "github.com/smhdhsn/restaurant-user/internal/request/user"
+	uService "github.com/smhdhsn/restaurant-user/internal/service/user"
 )
 
 // Search contains services that can be used within user search's handler.
