@@ -3,11 +3,11 @@ server:
   port: 9000
 
 db:
-  host: "restaurant_db"
+  host: "user_db"
   port: 3306
-  name: "restaurant"
-  user: "restaurant"
-  pass: "restaurant"
+  name: "user"
+  user: "user"
+  pass: "user"
 
 hash:
   min_length: 6

@@ -6,34 +6,28 @@ green=`tput setaf 2`
 yellow=`tput setaf 3`
 blue=`tput setaf 4`
 
-# Finding configuration file for chosen environment.
+# Finding configuration and docker-compose files for chosen environment.
 if [ $APP_MODE ]; then
-    if [[ -f "config/$APP_MODE.yml" || -f "config/$APP_MODE.yaml" ]]; then
-        echo "${green}Application is running on ${blue}${APP_MODE}${green} environment."
-    else
-        echo "${red}Failed to find configurations for ${yellow}${APP_MODE}${red} environment.${reset}"
-        exit;
-    fi
-else
-    if [[ -f "config/local.yml" || -f "config/local.yaml" ]]; then
-        export APP_MODE="local"
+    if [[ -f "$(pwd)/config/${APP_MODE}/config.yaml" && -f "$(pwd)/config/${APP_MODE}/docker-compose.yaml" ]]; then
+        composeFile="$(pwd)/config/${APP_MODE}/docker-compose.yaml"
+
         echo "${green}Application is running on ${blue}${APP_MODE}${green} environment.${reset}"
     else
-        echo "${red}Failed to find any configurations for any environment!"
-        echo "Please consider making one under path ${yellow}config/${reset}"
+        echo "${red}Failed to find configuration files for ${yellow}${APP_MODE}${red} environment!${reset}"
+        echo "${red}You're missing ${yellow}config.yaml${reset}${red} or/and ${yellow}docker-compose.yaml${reset}${red} under path ${yellow}config/${APP_MODE}/${reset}"
         exit;
     fi
-fi
-
-# Finding docker-compose file related to chosen environment.
-if [ -f "deploy/${APP_MODE}/docker-compose.yaml" ]; then
-    composeFile="$(pwd)/deploy/${APP_MODE}/docker-compose.yaml"
-elif [ -f "deploy/${APP_MODE}/docker-compose.yml" ]; then
-    composeFile="$(pwd)/deploy/${APP_MODE}/docker-compose.yml"
 else
-    echo "${red}Failed to find any docker-compose file for your environment!"
-    echo "Please consider making one under path ${yellow}deploy/${APP_MODE}/${reset}"
-    exit;
+    if [[ -f "$(pwd)/config/local/config.yaml" && -f "$(pwd)/config/local/docker-compose.yaml" ]]; then
+        export APP_MODE="local"
+        composeFile="$(pwd)/config/${APP_MODE}/docker-compose.yaml"
+
+        echo "${green}Application is running on ${blue}${APP_MODE}${green} environment.${reset}"
+    else
+        echo "${red}Failed to find configuration files for any environment!${reset}"
+        echo "${red}You're missing ${yellow}config.yaml${reset}${red} or/and ${yellow}docker-compose.yaml${reset}${red} under path ${yellow}$(pwd)/config/APP_MODE/${reset}"
+        exit;
+    fi
 fi
 
 DOCKER_BUILDKIT=1 docker-compose \

@@ -1,14 +1,14 @@
 services:
   db:
     image: mysql:8
-    container_name: restaurant_db
+    container_name: user_db
     networks:
       - restaurant
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "true"
-      MYSQL_USER: restaurant
-      MYSQL_PASSWORD: restaurant
-      MYSQL_DATABASE: restaurant
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+      MYSQL_DATABASE: user
     ports:
       - 3306:3306
     volumes:
@@ -18,13 +18,13 @@ services:
   app:
     build:
       context: ../../
-      dockerfile: deploy/Dockerfile
+      dockerfile: config/Dockerfile
     container_name: restaurant_app
     environment:
       GIN_MODE: $GIN_MODE
       APP_MODE: $APP_MODE
     ports:
-      - 9000:9000
+      - 9001:9000
     networks:
       - restaurant
     depends_on:

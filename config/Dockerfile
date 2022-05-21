@@ -21,4 +21,4 @@ COPY --from=binary /build/api /app/
 
 WORKDIR /app
 
-EXPOSE 9000
+EXPOSE 9001
