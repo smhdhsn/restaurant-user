@@ -2,60 +2,48 @@ package http
 
 import (
 	"fmt"
+	"net"
 
-	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+
 	"github.com/smhdhsn/restaurant-user/internal/config"
 	"github.com/smhdhsn/restaurant-user/internal/http/resource"
 
 	log "github.com/smhdhsn/restaurant-user/internal/logger"
+	uspb "github.com/smhdhsn/restaurant-user/internal/protos/user/source"
 )
 
 // Server contains server's services.
 type Server struct {
-	uResource *resource.UserResource
-	router    *gin.Engine
+	listener net.Listener
+	grpc     *grpc.Server
+	conf     *config.ServerConf
 }
 
-// New creates a new http server.
-func New(uResource *resource.UserResource) *Server {
-	s := new(Server)
-	s.router = gin.New()
-	s.uResource = uResource
+// NewServer creates a new http server.
+func NewServer(c *config.ServerConf, ur *resource.UserResource) (*Server, error) {
+	// Listen to a specific host and port for incoming requests.
+	l, err := net.Listen(c.Protocol, fmt.Sprintf("%s:%d", c.Host, c.Port))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to listen to port")
+	}
 
-	pvGroup := s.router.Group("/_/")
-	s.mapUserPV(pvGroup)
+	// Instantiate gRPC server.
+	s := grpc.NewServer()
 
-	pbGroup := s.router.Group("/")
-	s.mapUserPB(pbGroup)
+	// Register gRPC service handlers.
+	uspb.RegisterUserSourceServiceServer(s, ur.SourceHandler)
 
-	return s
-}
-
-// mapUserPV is responsible for mapping user's sensitive routes.
-func (s *Server) mapUserPV(r *gin.RouterGroup) {
-	apiRouter := r.Group("/api")
-	uRouter := apiRouter.Group("/users")
-
-	uRouter.POST("/", s.uResource.Source.Store)
-	uRouter.GET("/:userID", s.uResource.Source.Find)
-	uRouter.PUT("/:userID", s.uResource.Source.Update)
-	uRouter.DELETE("/:userID", s.uResource.Source.Destroy)
-
-	uRouter.GET("/search", s.uResource.Search.List)
-}
-
-// mapUserPB is responsible for mapping user's public routes.
-func (s *Server) mapUserPB(r *gin.RouterGroup) {
-	apiRouter := r.Group("/api")
-	uRouter := apiRouter.Group("/users")
-
-	uRouter.GET("/:userCode", s.uResource.Source.Find)
-
-	uRouter.GET("/search", s.uResource.Search.Index)
+	return &Server{
+		listener: l,
+		grpc:     s,
+		conf:     c,
+	}, nil
 }
 
 // Listen is responsible for starting the HTTP server.
-func (s *Server) Listen(conf config.ServerConf) error {
-	log.Info(fmt.Sprintf("server started listening on port <%d>", conf.Port))
-	return s.router.Run(fmt.Sprintf("%s:%d", conf.Host, conf.Port))
+func (s *Server) Listen() error {
+	log.Info(fmt.Sprintf("%s server started listening on port <%d>", s.conf.Protocol, s.conf.Port))
+	return s.grpc.Serve(s.listener)
 }

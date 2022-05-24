@@ -1,21 +1,17 @@
 package resource
 
 import (
-	"github.com/smhdhsn/restaurant-user/internal/http/handler/user"
+	uHand "github.com/smhdhsn/restaurant-user/internal/http/handler/user"
 )
 
 // UserResource holds user resource's handlers.
 type UserResource struct {
-	Source *user.Source
-	Search *user.Search
-	Auth   *user.Auth
+	SourceHandler *uHand.SourceHandler
 }
 
 // NewUserResource creates a new user resource with all handlers within itself.
-func NewUserResource(source *user.Source, search *user.Search, auth *user.Auth) *UserResource {
+func NewUserResource(source *uHand.SourceHandler) *UserResource {
 	return &UserResource{
-		Source: source,
-		Search: search,
-		Auth:   auth,
+		SourceHandler: source,
 	}
 }

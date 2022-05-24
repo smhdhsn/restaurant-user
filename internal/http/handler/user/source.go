@@ -1,173 +1,139 @@
 package user
 
 import (
+	"context"
 	"errors"
-	"net/http"
+	"strings"
 
-	"github.com/gin-gonic/gin"
-	"github.com/smhdhsn/restaurant-user/internal/config"
-	"github.com/smhdhsn/restaurant-user/internal/http/helper"
-	"github.com/smhdhsn/restaurant-user/internal/repository/contract"
-	"github.com/smhdhsn/restaurant-user/internal/validator"
-	"github.com/smhdhsn/restaurant-user/util/encryption"
-	"github.com/smhdhsn/restaurant-user/util/response"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
-	log "github.com/smhdhsn/restaurant-user/internal/logger"
+	"github.com/smhdhsn/restaurant-user/internal/model"
 
-	uRequest "github.com/smhdhsn/restaurant-user/internal/request/user"
-	uService "github.com/smhdhsn/restaurant-user/internal/service/user"
+	uspb "github.com/smhdhsn/restaurant-user/internal/protos/user/source"
+	uRepoContract "github.com/smhdhsn/restaurant-user/internal/repository/contract"
+	uServContract "github.com/smhdhsn/restaurant-user/internal/service/contract/user"
 )
 
-// Source contains services that can be used within user source handler.
-type Source struct {
-	sourceServ *uService.SourceService
-	hashConf   config.HashConf
+// SourceHandler contains services that can be used within user source handler.
+type SourceHandler struct {
+	sourceServ uServContract.UserSourceService
 }
 
-// NewSource creates a new user source handler.
-func NewSource(sourceServ *uService.SourceService, hashConf config.HashConf) *Source {
-	return &Source{
+// NewSourceHandler creates a new user source handler.
+func NewSourceHandler(sourceServ uServContract.UserSourceService) *SourceHandler {
+	return &SourceHandler{
 		sourceServ: sourceServ,
-		hashConf:   hashConf,
 	}
 }
 
-// Find is responsible for fetching user's full details from database.
-func (h *Source) Find(c *gin.Context) {
-	userID, err := helper.StrToUint(c.Params.ByName("userID"))
-	if err != nil {
-		c.JSON(response.NewStatusBadRequest("error on parsing userID"))
-		return
+// Store is responsible for storing a user into database.
+func (s *SourceHandler) Store(ctx context.Context, req *uspb.UserStoreRequest) (*uspb.UserStoreResponse, error) {
+	uReq := &model.UserDTO{
+		FirstName: req.GetFirstName(),
+		LastName:  req.GetLastName(),
+		Email:     req.GetEmail(),
+		Password:  req.GetPassword(),
+		Status:    req.GetStatus().String(),
 	}
 
-	user, err := h.sourceServ.Find(userID)
+	uDTO, err := s.sourceServ.Store(uReq)
 	if err != nil {
-		if errors.Is(err, contract.ErrRecordNotFound) {
-			c.JSON(response.NewStatusNotFound())
-		} else {
-			c.JSON(response.NewStatusInternalServerError())
-			log.Error(err)
+		if errors.Is(err, uRepoContract.ErrDuplicateEntry) {
+			return nil, status.Error(codes.AlreadyExists, err.Error())
 		}
-		return
+
+		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
 	}
 
-	data := user.ToInternalResp()
-	c.JSON(response.NewStatusOK(data))
+	resp := &uspb.UserStoreResponse{
+		Id:        uDTO.ID,
+		FirstName: uDTO.FirstName,
+		LastName:  uDTO.LastName,
+		Email:     uDTO.Email,
+		Status:    uspb.Status(uspb.Status_value[strings.ToUpper(uDTO.Status)]),
+		CreatedAt: uDTO.CreatedAt.Unix(),
+		UpdatedAt: uDTO.UpdatedAt.Unix(),
+	}
+
+	return resp, nil
 }
 
-// Show is responsible for fetching user's limited details from database.
-func (h *Source) Show(c *gin.Context) {
-	userID, err := encryption.DecodeHashIDs(
-		c.Params.ByName("userCode"),
-		h.hashConf.Alphabet,
-		h.hashConf.Salt,
-		h.hashConf.MinLength,
-	)
-	if err != nil {
-		c.JSON(response.NewStatusBadRequest("error on decoding userCode"))
-		return
+// Find is responsible for fetching user's details from database.
+func (s *SourceHandler) Find(ctx context.Context, req *uspb.UserFindRequest) (*uspb.UserFindResponse, error) {
+	uReq := &model.UserDTO{
+		ID: req.GetId(),
 	}
 
-	user, err := h.sourceServ.Show(userID)
+	uDTO, err := s.sourceServ.Find(uReq)
 	if err != nil {
-		if errors.Is(err, contract.ErrRecordNotFound) {
-			c.JSON(response.NewStatusNotFound())
-		} else {
-			c.JSON(response.NewStatusInternalServerError())
-			log.Error(err)
+		if errors.Is(err, uRepoContract.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
 		}
-		return
+
+		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
 	}
 
-	data := user.ToExternalResp(h.hashConf)
-	c.JSON(response.NewStatusOK(data))
+	resp := &uspb.UserFindResponse{
+		Id:        uDTO.ID,
+		FirstName: uDTO.FirstName,
+		LastName:  uDTO.LastName,
+		Email:     uDTO.Email,
+		Status:    uspb.Status(uspb.Status_value[strings.ToUpper(uDTO.Status)]),
+		CreatedAt: uDTO.CreatedAt.Unix(),
+		UpdatedAt: uDTO.UpdatedAt.Unix(),
+	}
+
+	return resp, nil
 }
 
-// Store is responsible for storing a user in the database.
-func (h *Source) Store(c *gin.Context) {
-	req := new(uRequest.SourceStoreReq)
-	if err := c.ShouldBindJSON(req); err != nil {
-		c.JSON(response.NewStatusBadRequest("error on binding JSON"))
-		return
+// Destroy is responsible for deleting a user from database.
+func (s *SourceHandler) Destroy(ctx context.Context, req *uspb.UserDestroyRequest) (*uspb.UserDestroyResponse, error) {
+	uReq := &model.UserDTO{
+		ID: req.GetId(),
 	}
 
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
-		data := helper.ParseValidationErr(err)
-		c.JSON(response.NewStatusUnprocessableEntity(data))
-		return
-	}
-
-	user, err := h.sourceServ.Store(*req)
+	err := s.sourceServ.Destroy(uReq)
 	if err != nil {
-		if errors.Is(err, contract.ErrDuplicateEntry) {
-			c.JSON(response.NewStatusBadRequest("duplicate entry"))
-		} else {
-			c.JSON(response.NewStatusInternalServerError())
-			log.Error(err)
+		if errors.Is(err, uRepoContract.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
 		}
-		return
+
+		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
 	}
 
-	data := user.ToInternalResp()
-	c.JSON(response.NewStatusCreated(data))
+	resp := &uspb.UserDestroyResponse{
+		Status: true,
+	}
+
+	return resp, nil
 }
 
-// Update is responsible for updating user's information inside database.
-func (h *Source) Update(c *gin.Context) {
-	req := new(uRequest.SourceUpdateReq)
-	if err := c.ShouldBindJSON(req); err != nil {
-		c.JSON(response.NewStatusBadRequest("error on binding JSON"))
-		return
+// Update is responsible for updating a user's information inside database.
+func (s *SourceHandler) Update(ctx context.Context, req *uspb.UserUpdateRequest) (*uspb.UserUpdateResponse, error) {
+	uReq := &model.UserDTO{
+		ID:        req.GetId(),
+		FirstName: req.GetFirstName(),
+		LastName:  req.GetLastName(),
+		Email:     req.GetEmail(),
+		Password:  req.GetPassword(),
+		Status:    req.GetStatus().String(),
 	}
 
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
-		data := helper.ParseValidationErr(err)
-		c.JSON(response.NewStatusUnprocessableEntity(data))
-		return
-	}
-
-	userID, err := helper.StrToUint(c.Params.ByName("userID"))
+	err := s.sourceServ.Update(uReq)
 	if err != nil {
-		c.JSON(response.NewStatusBadRequest("error on parsing userID"))
-		return
-	}
-
-	err = h.sourceServ.Update(*req, userID)
-	if err != nil {
-		if errors.Is(err, contract.ErrRecordNotFound) {
-			c.JSON(response.NewStatusNotFound())
-		} else if errors.Is(err, contract.ErrDuplicateEntry) {
-			c.JSON(response.NewStatusBadRequest("duplicate entry"))
-		} else {
-			c.JSON(response.NewStatusInternalServerError())
-			log.Error(err)
+		if errors.Is(err, uRepoContract.ErrDuplicateEntry) {
+			return nil, status.Error(codes.AlreadyExists, err.Error())
+		} else if errors.Is(err, uRepoContract.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
 		}
-		return
+
+		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
 	}
 
-	c.Status(http.StatusNoContent)
-}
-
-// Destroy is responsible for deleting a user from the database.
-func (h *Source) Destroy(c *gin.Context) {
-	userID, err := helper.StrToUint(c.Params.ByName("userID"))
-	if err != nil {
-		c.JSON(response.NewStatusBadRequest("error on parsing userID"))
-		return
+	resp := &uspb.UserUpdateResponse{
+		Status: true,
 	}
 
-	err = h.sourceServ.Destroy(userID)
-	if err != nil {
-		if errors.Is(err, contract.ErrRecordNotFound) {
-			c.JSON(response.NewStatusNotFound())
-		} else {
-			c.JSON(response.NewStatusInternalServerError())
-			log.Error(err)
-		}
-		return
-	}
-
-	c.Status(http.StatusNoContent)
+	return resp, nil
 }

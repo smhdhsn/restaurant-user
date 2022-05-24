@@ -1,15 +1,11 @@
 server: 
+  protocol: "tcp"
   host: ""
-  port: 9000
+  port: 80
 
 db:
-  host: "user_db"
+  host: "restaurant_user_db"
   port: 3306
   name: "user"
-  user: "user"
-  pass: "user"
-
-hash:
-  min_length: 6
-  salt: "800k570reh45h5417"
-  alphabet: "abcdefghijklmnopqrstuvwxyz1234567890"
+  user: "restaurant_user"
+  pass: "restaurant_user"

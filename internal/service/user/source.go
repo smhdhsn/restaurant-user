@@ -4,8 +4,6 @@ import (
 	"github.com/smhdhsn/restaurant-user/internal/model"
 	"github.com/smhdhsn/restaurant-user/internal/repository/contract"
 	"github.com/smhdhsn/restaurant-user/util/encryption"
-
-	uRequest "github.com/smhdhsn/restaurant-user/internal/request/user"
 )
 
 // SourceService contains repositories that will be used within this service.
@@ -21,41 +19,27 @@ func NewSourceService(uRepo contract.UserRepository) *SourceService {
 }
 
 // Store is responsible for storing user data inside database.
-func (s *SourceService) Store(req uRequest.SourceStoreReq) (*model.UserDTO, error) {
-	user := &model.UserDTO{
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Email:     req.Email,
-		Password:  encryption.EncodeMD5(req.Password),
-		Status:    req.Status,
-	}
+func (s *SourceService) Store(u *model.UserDTO) (*model.UserDTO, error) {
+	u.Password = encryption.EncodeMD5(u.Password)
 
-	return s.uRepo.Store(user)
+	return s.uRepo.Store(u)
 }
 
 // Find is responsible for fetching user's full details from database.
-func (s *SourceService) Find(userID uint) (*model.UserDTO, error) {
-	return s.uRepo.Find(userID)
-}
-
-// Show is responsible for fetching user's limited details from database.
-func (s *SourceService) Show(userID uint) (*model.UserDTO, error) {
-	return s.uRepo.Show(userID)
+func (s *SourceService) Find(u *model.UserDTO) (*model.UserDTO, error) {
+	return s.uRepo.Find(u)
 }
 
 // Destroy is responsible for deleting a user from the database.
-func (s *SourceService) Destroy(userID uint) error {
-	return s.uRepo.Destroy(userID)
+func (s *SourceService) Destroy(u *model.UserDTO) error {
+	return s.uRepo.Destroy(u)
 }
 
 // Update is responsible for updating user's information inside database.
-func (s *SourceService) Update(req uRequest.SourceUpdateReq, userID uint) error {
-	user := model.UserDTO{
-		ID:        userID,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Email:     req.Email,
+func (s *SourceService) Update(u *model.UserDTO) error {
+	if u.Password != "" {
+		u.Password = encryption.EncodeMD5(u.Password)
 	}
 
-	return s.uRepo.Update(&user)
+	return s.uRepo.Update(u)
 }

@@ -16,7 +16,6 @@ const defaultMode = "local"
 // Config holds the application's configurations.
 type Config struct {
 	Server ServerConf `yaml:"server"`
-	Hash   HashConf   `yaml:"hash"`
 	DB     DBConf     `yaml:"db"`
 }
 

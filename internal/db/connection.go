@@ -3,14 +3,15 @@ package db
 import (
 	"fmt"
 
-	"github.com/smhdhsn/restaurant-user/internal/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"github.com/smhdhsn/restaurant-user/internal/config"
 )
 
 // Connect creates a database connection.
-func Connect(conf config.DBConf) (*gorm.DB, error) {
+func Connect(conf *config.DBConf) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/%s?parseTime=true",
 		conf.User,

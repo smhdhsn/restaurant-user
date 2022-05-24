@@ -8,7 +8,7 @@ import (
 // log holds an instance of zap logger.
 var log *zap.Logger
 
-// init will be called when this package is called.
+// init will be called when this package is imported.
 func init() {
 	logConf := zap.Config{
 		OutputPaths: []string{"stdout"},

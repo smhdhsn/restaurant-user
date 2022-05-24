@@ -1,11 +1,11 @@
-package contract
+package user
 
 import (
 	"github.com/smhdhsn/restaurant-user/internal/model"
 )
 
-// UserRepository is the interface representing user repository or it's mock.
-type UserRepository interface {
+// UserSourceService is the interface that user service must implement.
+type UserSourceService interface {
 	Store(*model.UserDTO) (*model.UserDTO, error)
 	Find(*model.UserDTO) (*model.UserDTO, error)
 	Destroy(*model.UserDTO) error

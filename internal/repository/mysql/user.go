@@ -2,22 +2,22 @@ package mysql
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
+
 	"github.com/smhdhsn/restaurant-user/internal/model"
 	"github.com/smhdhsn/restaurant-user/internal/repository/contract"
-	"gorm.io/gorm"
 )
 
 // UserRepo contains repository's database connection.
 type UserRepo struct {
-	model *model.User
+	model model.User
 	db    *gorm.DB
 }
 
-// NewUserRepo creates an instance of the repository with database connection.
-func NewUserRepo(db *gorm.DB, m *model.User) contract.UserRepository {
+// NewUserRepository creates an instance of the repository with database connection.
+func NewUserRepository(db *gorm.DB, m model.User) contract.UserRepository {
 	return &UserRepo{
 		model: m,
 		db:    db,
@@ -38,23 +38,9 @@ func (r *UserRepo) Store(u *model.UserDTO) (*model.UserDTO, error) {
 	return u, nil
 }
 
-// FindBy is responsible for finding a record with a given column matching a given value.
-func (r *UserRepo) FindBy(req contract.FilterBy) (model.UserDTOList, error) {
-	uList := make(model.UserDTOList, 0)
-	err := r.db.Model(r.model).Where(fmt.Sprintf("%s = ?", req.Field), req.Value).Find(&uList).Error
-	if err != nil {
-		return nil, err
-	} else if len(uList) == 0 {
-		return nil, contract.ErrRecordNotFound
-	}
-
-	return uList, nil
-}
-
 // Find is responsible for fetching user's full details from database.
-func (r *UserRepo) Find(userID uint) (*model.UserDTO, error) {
-	u := new(model.UserDTO)
-	err := r.db.Model(r.model).First(u, userID).Error
+func (r *UserRepo) Find(u *model.UserDTO) (*model.UserDTO, error) {
+	err := r.db.Model(r.model).First(u, u.ID).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, contract.ErrRecordNotFound
@@ -66,38 +52,27 @@ func (r *UserRepo) Find(userID uint) (*model.UserDTO, error) {
 	return u, nil
 }
 
-// Show is responsible for fetching user's limited details from database.
-func (r *UserRepo) Show(userID uint) (*model.UserDTO, error) {
-	u := new(model.UserDTO)
-	err := r.db.Model(r.model).Select("id", "status", "created_at", "updated_at").First(u, userID).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, contract.ErrRecordNotFound
-		}
-
-		return nil, err
-	}
-
-	return u, nil
-}
-
-// Update is responsible for updating user's information inside database.
-func (r *UserRepo) Update(user *model.UserDTO) error {
-	tx := r.db.Model(r.model).Where("id = ?", user.ID).Updates(user)
-	if tx.Error != nil && tx.Error.(*mysql.MySQLError).Number == contract.DuplicateEntryErrNum {
-		return contract.ErrDuplicateEntry
+// Destroy is responsible for deleting a user from the database.
+func (r *UserRepo) Destroy(u *model.UserDTO) error {
+	tx := r.db.Where("id = ?", u.ID).Delete(r.model)
+	if err := tx.Error; err != nil {
+		return err
 	} else if tx.RowsAffected == 0 {
 		return contract.ErrRecordNotFound
 	}
 
-	return tx.Error
+	return nil
 }
 
-// Destroy is responsible for deleting a user from the database.
-func (r *UserRepo) Destroy(userID uint) error {
-	tx := r.db.Where("id = ?", userID).Delete(r.model)
+// Update is responsible for updating user's information inside database.
+func (r *UserRepo) Update(u *model.UserDTO) error {
+	tx := r.db.Model(r.model).Where("id = ?", u.ID).Updates(u)
 	if err := tx.Error; err != nil {
-		return err
+		if err.(*mysql.MySQLError).Number == contract.DuplicateEntryErrNum {
+			return contract.ErrDuplicateEntry
+		} else {
+			return err
+		}
 	} else if tx.RowsAffected == 0 {
 		return contract.ErrRecordNotFound
 	}
