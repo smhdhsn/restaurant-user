@@ -1,4 +1,4 @@
-package http
+package server
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/smhdhsn/restaurant-user/internal/config"
-	"github.com/smhdhsn/restaurant-user/internal/http/resource"
+	"github.com/smhdhsn/restaurant-user/internal/server/resource"
 
 	log "github.com/smhdhsn/restaurant-user/internal/logger"
 	uspb "github.com/smhdhsn/restaurant-user/internal/protos/user/source"

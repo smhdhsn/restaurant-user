@@ -3,14 +3,14 @@ package main
 import (
 	"github.com/smhdhsn/restaurant-user/internal/config"
 	"github.com/smhdhsn/restaurant-user/internal/db"
-	"github.com/smhdhsn/restaurant-user/internal/http"
-	"github.com/smhdhsn/restaurant-user/internal/http/resource"
 	"github.com/smhdhsn/restaurant-user/internal/model"
 	"github.com/smhdhsn/restaurant-user/internal/repository/mysql"
+	"github.com/smhdhsn/restaurant-user/internal/server"
+	"github.com/smhdhsn/restaurant-user/internal/server/handler"
+	"github.com/smhdhsn/restaurant-user/internal/server/resource"
+	"github.com/smhdhsn/restaurant-user/internal/service"
 
-	uHand "github.com/smhdhsn/restaurant-user/internal/http/handler/user"
 	log "github.com/smhdhsn/restaurant-user/internal/logger"
-	uServ "github.com/smhdhsn/restaurant-user/internal/service/user"
 )
 
 // main is the application's kernel.
@@ -39,16 +39,16 @@ func main() {
 	uRepo := mysql.NewUserRepository(dbConn, *uModel)
 
 	// instantiate services.
-	uSourceService := uServ.NewSourceService(uRepo)
+	uSourceService := service.NewSourceService(uRepo)
 
 	// instantiate handlers.
-	uSourceHandler := uHand.NewSourceHandler(uSourceService)
+	uSourceHandler := handler.NewSourceHandler(uSourceService)
 
 	// instantiate resources.
 	uRes := resource.NewUserResource(uSourceHandler)
 
 	// instantiate gRPC server.
-	s, err := http.NewServer(&conf.Server, uRes)
+	s, err := server.NewServer(&conf.Server, uRes)
 	if err != nil {
 		log.Fatal(err)
 	}

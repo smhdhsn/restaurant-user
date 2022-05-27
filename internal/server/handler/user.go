@@ -1,4 +1,4 @@
-package user
+package handler
 
 import (
 	"context"
@@ -9,19 +9,19 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/smhdhsn/restaurant-user/internal/model"
+	"github.com/smhdhsn/restaurant-user/internal/repository/mysql"
+	"github.com/smhdhsn/restaurant-user/internal/service"
 
 	uspb "github.com/smhdhsn/restaurant-user/internal/protos/user/source"
-	uRepoContract "github.com/smhdhsn/restaurant-user/internal/repository/contract"
-	uServContract "github.com/smhdhsn/restaurant-user/internal/service/contract/user"
 )
 
 // SourceHandler contains services that can be used within user source handler.
 type SourceHandler struct {
-	sourceServ uServContract.UserSourceService
+	sourceServ service.UserSourceService
 }
 
 // NewSourceHandler creates a new user source handler.
-func NewSourceHandler(sourceServ uServContract.UserSourceService) *SourceHandler {
+func NewSourceHandler(sourceServ service.UserSourceService) *SourceHandler {
 	return &SourceHandler{
 		sourceServ: sourceServ,
 	}
@@ -39,7 +39,7 @@ func (s *SourceHandler) Store(ctx context.Context, req *uspb.UserStoreRequest) (
 
 	uDTO, err := s.sourceServ.Store(uReq)
 	if err != nil {
-		if errors.Is(err, uRepoContract.ErrDuplicateEntry) {
+		if errors.Is(err, mysql.ErrDuplicateEntry) {
 			return nil, status.Error(codes.AlreadyExists, err.Error())
 		}
 
@@ -67,7 +67,7 @@ func (s *SourceHandler) Find(ctx context.Context, req *uspb.UserFindRequest) (*u
 
 	uDTO, err := s.sourceServ.Find(uReq)
 	if err != nil {
-		if errors.Is(err, uRepoContract.ErrRecordNotFound) {
+		if errors.Is(err, mysql.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 
@@ -95,7 +95,7 @@ func (s *SourceHandler) Destroy(ctx context.Context, req *uspb.UserDestroyReques
 
 	err := s.sourceServ.Destroy(uReq)
 	if err != nil {
-		if errors.Is(err, uRepoContract.ErrRecordNotFound) {
+		if errors.Is(err, mysql.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 
@@ -122,9 +122,9 @@ func (s *SourceHandler) Update(ctx context.Context, req *uspb.UserUpdateRequest)
 
 	err := s.sourceServ.Update(uReq)
 	if err != nil {
-		if errors.Is(err, uRepoContract.ErrDuplicateEntry) {
+		if errors.Is(err, mysql.ErrDuplicateEntry) {
 			return nil, status.Error(codes.AlreadyExists, err.Error())
-		} else if errors.Is(err, uRepoContract.ErrRecordNotFound) {
+		} else if errors.Is(err, mysql.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 
