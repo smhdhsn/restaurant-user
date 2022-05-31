@@ -7,26 +7,9 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/smhdhsn/restaurant-user/internal/model"
-)
 
-// This section contains MySQL error numbers.
-const (
-	DuplicateEntryErrNum = 1062
+	repositoryContract "github.com/smhdhsn/restaurant-user/internal/repository/contract"
 )
-
-// This block holds common errors that might happen within repository.
-var (
-	ErrRecordNotFound = errors.New("record not found")
-	ErrDuplicateEntry = errors.New("duplicate entry")
-)
-
-// UserRepository is the interface representing user repository or it's mock.
-type UserRepository interface {
-	Store(*model.UserDTO) (*model.UserDTO, error)
-	Find(*model.UserDTO) (*model.UserDTO, error)
-	Destroy(*model.UserDTO) error
-	Update(*model.UserDTO) error
-}
 
 // UserRepo contains repository's database connection.
 type UserRepo struct {
@@ -35,7 +18,7 @@ type UserRepo struct {
 }
 
 // NewUserRepository creates an instance of the repository with database connection.
-func NewUserRepository(db *gorm.DB, m model.User) UserRepository {
+func NewUserRepository(db *gorm.DB, m model.User) repositoryContract.UserRepository {
 	return &UserRepo{
 		model: m,
 		db:    db,
@@ -46,8 +29,8 @@ func NewUserRepository(db *gorm.DB, m model.User) UserRepository {
 func (r *UserRepo) Store(u *model.UserDTO) (*model.UserDTO, error) {
 	err := r.db.Model(r.model).Create(u).Error
 	if err != nil {
-		if err.(*mysql.MySQLError).Number == DuplicateEntryErrNum {
-			return nil, ErrDuplicateEntry
+		if err.(*mysql.MySQLError).Number == repositoryContract.DuplicateEntryErrNum {
+			return nil, repositoryContract.ErrDuplicateEntry
 		}
 
 		return nil, err
@@ -61,7 +44,7 @@ func (r *UserRepo) Find(u *model.UserDTO) (*model.UserDTO, error) {
 	err := r.db.Model(r.model).First(u, u.ID).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrRecordNotFound
+			return nil, repositoryContract.ErrRecordNotFound
 		}
 
 		return nil, err
@@ -76,7 +59,7 @@ func (r *UserRepo) Destroy(u *model.UserDTO) error {
 	if err := tx.Error; err != nil {
 		return err
 	} else if tx.RowsAffected == 0 {
-		return ErrRecordNotFound
+		return repositoryContract.ErrRecordNotFound
 	}
 
 	return nil
@@ -86,13 +69,13 @@ func (r *UserRepo) Destroy(u *model.UserDTO) error {
 func (r *UserRepo) Update(u *model.UserDTO) error {
 	tx := r.db.Model(r.model).Where("id = ?", u.ID).Updates(u)
 	if err := tx.Error; err != nil {
-		if err.(*mysql.MySQLError).Number == DuplicateEntryErrNum {
-			return ErrDuplicateEntry
+		if err.(*mysql.MySQLError).Number == repositoryContract.DuplicateEntryErrNum {
+			return repositoryContract.ErrDuplicateEntry
 		} else {
 			return err
 		}
 	} else if tx.RowsAffected == 0 {
-		return ErrRecordNotFound
+		return repositoryContract.ErrRecordNotFound
 	}
 
 	return nil

@@ -9,9 +9,9 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/smhdhsn/restaurant-user/internal/model"
-	"github.com/smhdhsn/restaurant-user/internal/repository/mysql"
 
 	uspb "github.com/smhdhsn/restaurant-user/internal/protos/user/source"
+	repositoryContract "github.com/smhdhsn/restaurant-user/internal/repository/contract"
 	serviceContract "github.com/smhdhsn/restaurant-user/internal/service/contract"
 )
 
@@ -39,7 +39,7 @@ func (s *SourceHandler) Store(ctx context.Context, req *uspb.UserStoreRequest) (
 
 	uDTO, err := s.sourceServ.Store(uReq)
 	if err != nil {
-		if errors.Is(err, mysql.ErrDuplicateEntry) {
+		if errors.Is(err, repositoryContract.ErrDuplicateEntry) {
 			return nil, status.Error(codes.AlreadyExists, err.Error())
 		}
 
@@ -67,7 +67,7 @@ func (s *SourceHandler) Find(ctx context.Context, req *uspb.UserFindRequest) (*u
 
 	uDTO, err := s.sourceServ.Find(uReq)
 	if err != nil {
-		if errors.Is(err, mysql.ErrRecordNotFound) {
+		if errors.Is(err, repositoryContract.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 
@@ -95,7 +95,7 @@ func (s *SourceHandler) Destroy(ctx context.Context, req *uspb.UserDestroyReques
 
 	err := s.sourceServ.Destroy(uReq)
 	if err != nil {
-		if errors.Is(err, mysql.ErrRecordNotFound) {
+		if errors.Is(err, repositoryContract.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 
@@ -122,9 +122,9 @@ func (s *SourceHandler) Update(ctx context.Context, req *uspb.UserUpdateRequest)
 
 	err := s.sourceServ.Update(uReq)
 	if err != nil {
-		if errors.Is(err, mysql.ErrDuplicateEntry) {
+		if errors.Is(err, repositoryContract.ErrDuplicateEntry) {
 			return nil, status.Error(codes.AlreadyExists, err.Error())
-		} else if errors.Is(err, mysql.ErrRecordNotFound) {
+		} else if errors.Is(err, repositoryContract.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 

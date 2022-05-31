@@ -2,19 +2,19 @@ package service
 
 import (
 	"github.com/smhdhsn/restaurant-user/internal/model"
-	"github.com/smhdhsn/restaurant-user/internal/repository/mysql"
 	"github.com/smhdhsn/restaurant-user/pkg/encryption"
 
+	repositoryContract "github.com/smhdhsn/restaurant-user/internal/repository/contract"
 	serviceContract "github.com/smhdhsn/restaurant-user/internal/service/contract"
 )
 
 // SourceService contains repositories that will be used within this service.
 type SourceService struct {
-	uRepo mysql.UserRepository
+	uRepo repositoryContract.UserRepository
 }
 
 // NewSourceService creates a user's source service with it's dependencies.
-func NewSourceService(uRepo mysql.UserRepository) serviceContract.UserSourceService {
+func NewSourceService(uRepo repositoryContract.UserRepository) serviceContract.UserSourceService {
 	return &SourceService{
 		uRepo: uRepo,
 	}
