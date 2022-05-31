@@ -3,16 +3,10 @@ package service
 import (
 	"github.com/smhdhsn/restaurant-user/internal/model"
 	"github.com/smhdhsn/restaurant-user/internal/repository/mysql"
-	"github.com/smhdhsn/restaurant-user/util/encryption"
-)
+	"github.com/smhdhsn/restaurant-user/pkg/encryption"
 
-// UserSourceService is the interface that user service must implement.
-type UserSourceService interface {
-	Store(*model.UserDTO) (*model.UserDTO, error)
-	Find(*model.UserDTO) (*model.UserDTO, error)
-	Destroy(*model.UserDTO) error
-	Update(*model.UserDTO) error
-}
+	serviceContract "github.com/smhdhsn/restaurant-user/internal/service/contract"
+)
 
 // SourceService contains repositories that will be used within this service.
 type SourceService struct {
@@ -20,7 +14,7 @@ type SourceService struct {
 }
 
 // NewSourceService creates a user's source service with it's dependencies.
-func NewSourceService(uRepo mysql.UserRepository) UserSourceService {
+func NewSourceService(uRepo mysql.UserRepository) serviceContract.UserSourceService {
 	return &SourceService{
 		uRepo: uRepo,
 	}

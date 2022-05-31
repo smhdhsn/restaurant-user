@@ -10,18 +10,18 @@ import (
 
 	"github.com/smhdhsn/restaurant-user/internal/model"
 	"github.com/smhdhsn/restaurant-user/internal/repository/mysql"
-	"github.com/smhdhsn/restaurant-user/internal/service"
 
 	uspb "github.com/smhdhsn/restaurant-user/internal/protos/user/source"
+	serviceContract "github.com/smhdhsn/restaurant-user/internal/service/contract"
 )
 
 // SourceHandler contains services that can be used within user source handler.
 type SourceHandler struct {
-	sourceServ service.UserSourceService
+	sourceServ serviceContract.UserSourceService
 }
 
 // NewSourceHandler creates a new user source handler.
-func NewSourceHandler(sourceServ service.UserSourceService) *SourceHandler {
+func NewSourceHandler(sourceServ serviceContract.UserSourceService) uspb.UserSourceServiceServer {
 	return &SourceHandler{
 		sourceServ: sourceServ,
 	}
