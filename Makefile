@@ -1,8 +1,8 @@
-.PHONY: up purge shell build_server build_all proto_source proto_all
+APP_MODE ?= local
 
 # runs the script which loads the containers of the application.
 up:
-	@./script/docker_up.sh $(APP_MODE)
+	@./scripts/docker_up.sh $(APP_MODE)
 
 # deletes application's containers.
 purge:
@@ -14,15 +14,17 @@ shell:
 	@docker exec -it restaurant_user_app bash
 
 # builds server's http entry point.
-build_server:
+build-server:
 	@go build -o $(BIN_DIR)/ ./cmd/server
 
 # builds all the entry points of the application.
-build_all: build_server
+build-all: build-server
 
-# compiles proto files related to user source.
-proto_source:
-	@protoc --go_out=internal/protos/user/source/ --go-grpc_out=require_unimplemented_servers=false:internal/protos/user/source/ protos/user/source/*.proto
+# compiles proto files related to user auth.
+proto-auth:
+	@protoc --go_out=internal/protos/user/auth/ --go-grpc_out=require_unimplemented_servers=false:internal/protos/user/auth/ protos/user/auth/*.proto
 
 # compiles all proto files.
-proto_all: proto_source
+proto-all: proto-auth
+
+.PHONY: up purge shell build-server build-all proto-auth proto-all

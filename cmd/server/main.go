@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/smhdhsn/restaurant-user/internal/config"
 	"github.com/smhdhsn/restaurant-user/internal/db"
-	"github.com/smhdhsn/restaurant-user/internal/model"
 	"github.com/smhdhsn/restaurant-user/internal/repository/mysql"
 	"github.com/smhdhsn/restaurant-user/internal/server"
 	"github.com/smhdhsn/restaurant-user/internal/server/handler"
@@ -28,24 +27,21 @@ func main() {
 	}
 
 	// initialize auto migration.
-	if err := db.InitMigrations(dbConn); err != nil {
+	if err := mysql.InitMigrations(dbConn); err != nil {
 		log.Fatal(err)
 	}
 
-	// instantiate models.
-	uModel := new(model.User)
-
 	// instantiate repositories.
-	uRepo := mysql.NewUserRepository(dbConn, *uModel)
+	uRepo := mysql.NewUserRepository(dbConn)
 
 	// instantiate services.
-	uSourceService := service.NewSourceService(uRepo)
+	aServ := service.NewAuthService(uRepo)
 
 	// instantiate handlers.
-	uSourceHandler := handler.NewSourceHandler(uSourceService)
+	aHand := handler.NewAuthHandler(aServ)
 
 	// instantiate resources.
-	uRes := resource.NewUserResource(uSourceHandler)
+	uRes := resource.NewUserResource(aHand)
 
 	// instantiate gRPC server.
 	s, err := server.NewServer(&conf.Server, uRes)
