@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package user.auth.response;
+
+option go_package = "./;uapb";
+
+// The response you get for calling Store on user.
+message UserStoreResponse {
+    uint32                  id         = 1;
+    string                  first_name = 2;
+    string                  last_name  = 3;
+    string                  email      = 4;
+}
+
+// The response you get for calling FindBy on user.
+message UserFindByResponse {
+    uint32                  id         = 1;
+    string                  first_name = 2;
+    string                  last_name  = 3;
+    string                  email      = 4;
+}

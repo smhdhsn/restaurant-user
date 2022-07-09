@@ -2,138 +2,100 @@ package handler
 
 import (
 	"context"
-	"errors"
-	"strings"
 
+	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/smhdhsn/restaurant-user/internal/model"
+	"github.com/smhdhsn/restaurant-user/internal/repository/entity"
+	"github.com/smhdhsn/restaurant-user/internal/service/dto"
 
-	uspb "github.com/smhdhsn/restaurant-user/internal/protos/user/source"
-	repositoryContract "github.com/smhdhsn/restaurant-user/internal/repository/contract"
+	authProto "github.com/smhdhsn/restaurant-user/internal/protos/user/auth"
 	serviceContract "github.com/smhdhsn/restaurant-user/internal/service/contract"
 )
 
-// SourceHandler contains services that can be used within user source handler.
-type SourceHandler struct {
-	sourceServ serviceContract.UserSourceService
+// AuthHandler contains services that can be used within user auth handler.
+type AuthHandler struct {
+	authServ serviceContract.UserAuthService
 }
 
-// NewSourceHandler creates a new user source handler.
-func NewSourceHandler(sourceServ serviceContract.UserSourceService) uspb.UserSourceServiceServer {
-	return &SourceHandler{
-		sourceServ: sourceServ,
+// NewAuthHandler creates a new user auth handler.
+func NewAuthHandler(as serviceContract.UserAuthService) authProto.UserAuthServiceServer {
+	return &AuthHandler{
+		authServ: as,
 	}
 }
 
 // Store is responsible for storing a user into database.
-func (s *SourceHandler) Store(ctx context.Context, req *uspb.UserStoreRequest) (*uspb.UserStoreResponse, error) {
-	uReq := &model.UserDTO{
-		FirstName: req.GetFirstName(),
-		LastName:  req.GetLastName(),
-		Email:     req.GetEmail(),
-		Password:  req.GetPassword(),
-		Status:    req.GetStatus().String(),
-	}
+func (s *AuthHandler) Store(ctx context.Context, req *authProto.UserStoreRequest) (*authProto.UserStoreResponse, error) {
+	uDTO := singleStoreReqToUserDTO(req)
 
-	uDTO, err := s.sourceServ.Store(uReq)
+	uEntity, err := s.authServ.Store(uDTO)
 	if err != nil {
-		if errors.Is(err, repositoryContract.ErrDuplicateEntry) {
+		if errors.Is(err, serviceContract.ErrDuplicateEntry) {
 			return nil, status.Error(codes.AlreadyExists, err.Error())
 		}
 
 		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
 	}
 
-	resp := &uspb.UserStoreResponse{
-		Id:        uDTO.ID,
-		FirstName: uDTO.FirstName,
-		LastName:  uDTO.LastName,
-		Email:     uDTO.Email,
-		Status:    uspb.Status(uspb.Status_value[strings.ToUpper(uDTO.Status)]),
-		CreatedAt: uDTO.CreatedAt.Unix(),
-		UpdatedAt: uDTO.UpdatedAt.Unix(),
-	}
+	resp := singleUserEntityToStoreResp(uEntity)
 
 	return resp, nil
 }
 
-// Find is responsible for fetching user's details from database.
-func (s *SourceHandler) Find(ctx context.Context, req *uspb.UserFindRequest) (*uspb.UserFindResponse, error) {
-	uReq := &model.UserDTO{
-		ID: req.GetId(),
-	}
-
-	uDTO, err := s.sourceServ.Find(uReq)
-	if err != nil {
-		if errors.Is(err, repositoryContract.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, err.Error())
-		}
-
-		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
-	}
-
-	resp := &uspb.UserFindResponse{
-		Id:        uDTO.ID,
-		FirstName: uDTO.FirstName,
-		LastName:  uDTO.LastName,
-		Email:     uDTO.Email,
-		Status:    uspb.Status(uspb.Status_value[strings.ToUpper(uDTO.Status)]),
-		CreatedAt: uDTO.CreatedAt.Unix(),
-		UpdatedAt: uDTO.UpdatedAt.Unix(),
-	}
-
-	return resp, nil
-}
-
-// Destroy is responsible for deleting a user from database.
-func (s *SourceHandler) Destroy(ctx context.Context, req *uspb.UserDestroyRequest) (*uspb.UserDestroyResponse, error) {
-	uReq := &model.UserDTO{
-		ID: req.GetId(),
-	}
-
-	err := s.sourceServ.Destroy(uReq)
-	if err != nil {
-		if errors.Is(err, repositoryContract.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, err.Error())
-		}
-
-		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
-	}
-
-	resp := &uspb.UserDestroyResponse{
-		Status: true,
-	}
-
-	return resp, nil
-}
-
-// Update is responsible for updating a user's information inside database.
-func (s *SourceHandler) Update(ctx context.Context, req *uspb.UserUpdateRequest) (*uspb.UserUpdateResponse, error) {
-	uReq := &model.UserDTO{
-		ID:        req.GetId(),
+// singleStoreReqToUserDTO is responsible for transforming a Store request into user dto struct.
+func singleStoreReqToUserDTO(req *authProto.UserStoreRequest) *dto.User {
+	return &dto.User{
 		FirstName: req.GetFirstName(),
 		LastName:  req.GetLastName(),
 		Email:     req.GetEmail(),
 		Password:  req.GetPassword(),
-		Status:    req.GetStatus().String(),
 	}
+}
 
-	err := s.sourceServ.Update(uReq)
+// singleUserEntityToStoreResp is responsible for transforming a user entity into Store response struct.
+func singleUserEntityToStoreResp(uEntity *entity.User) *authProto.UserStoreResponse {
+	return &authProto.UserStoreResponse{
+		Id:        uEntity.ID,
+		FirstName: uEntity.FirstName,
+		LastName:  uEntity.LastName,
+		Email:     uEntity.Email,
+	}
+}
+
+// FindBy is responsible for fetching user's details from database.
+func (s *AuthHandler) FindBy(ctx context.Context, req *authProto.UserFindByRequest) (*authProto.UserFindByResponse, error) {
+	uDTO := singleFindByReqToUserDTO(req)
+
+	uEntity, err := s.authServ.FindBy(uDTO)
 	if err != nil {
-		if errors.Is(err, repositoryContract.ErrDuplicateEntry) {
-			return nil, status.Error(codes.AlreadyExists, err.Error())
-		} else if errors.Is(err, repositoryContract.ErrRecordNotFound) {
+		if errors.Is(err, serviceContract.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 
 		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
 	}
 
-	resp := &uspb.UserUpdateResponse{
-		Status: true,
-	}
+	resp := singleUserEntityToFindByResp(uEntity)
 
 	return resp, nil
+}
+
+// singleFindByReqToUserDTO is responsible for transforming a FindBy request into user dto struct.
+func singleFindByReqToUserDTO(req *authProto.UserFindByRequest) *dto.User {
+	return &dto.User{
+		Email:    req.GetEmail(),
+		Password: req.GetPassword(),
+	}
+}
+
+// singleUserEntityToFindByResp is responsible for transforming a user entity into FindBy response struct.
+func singleUserEntityToFindByResp(uEntity *entity.User) *authProto.UserFindByResponse {
+	return &authProto.UserFindByResponse{
+		Id:        uEntity.ID,
+		FirstName: uEntity.FirstName,
+		LastName:  uEntity.LastName,
+		Email:     uEntity.Email,
+	}
 }

@@ -1,17 +1,17 @@
 package resource
 
 import (
-	uspb "github.com/smhdhsn/restaurant-user/internal/protos/user/source"
+	authProto "github.com/smhdhsn/restaurant-user/internal/protos/user/auth"
 )
 
 // UserResource holds user resource's handlers.
 type UserResource struct {
-	SourceHandler uspb.UserSourceServiceServer
+	AuthHandler authProto.UserAuthServiceServer
 }
 
 // NewUserResource creates a new user resource with all handlers within itself.
-func NewUserResource(source uspb.UserSourceServiceServer) *UserResource {
+func NewUserResource(ah authProto.UserAuthServiceServer) *UserResource {
 	return &UserResource{
-		SourceHandler: source,
+		AuthHandler: ah,
 	}
 }

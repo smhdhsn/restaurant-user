@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package user.auth.service;
+
+import "protos/user/auth/response.proto";
+import "protos/user/auth/request.proto";
+
+option go_package = "./;uapb";
+
+// UserAuthService handles CRUD operations on user.
+service UserAuthService {
+    // Unary
+    rpc FindBy(user.auth.request.UserFindByRequest) returns (user.auth.response.UserFindByResponse) {};
+    rpc Store(user.auth.request.UserStoreRequest) returns (user.auth.response.UserStoreResponse) {};
+}

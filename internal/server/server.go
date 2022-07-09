@@ -11,7 +11,7 @@ import (
 	"github.com/smhdhsn/restaurant-user/internal/server/resource"
 
 	log "github.com/smhdhsn/restaurant-user/internal/logger"
-	uspb "github.com/smhdhsn/restaurant-user/internal/protos/user/source"
+	authProto "github.com/smhdhsn/restaurant-user/internal/protos/user/auth"
 )
 
 // Server contains server's services.
@@ -22,7 +22,7 @@ type Server struct {
 }
 
 // NewServer creates a new http server.
-func NewServer(c *config.ServerConf, ur *resource.UserResource) (*Server, error) {
+func NewServer(c *config.ServerConf, uRes *resource.UserResource) (*Server, error) {
 	// Listen to a specific host and port for incoming requests.
 	l, err := net.Listen(c.Protocol, fmt.Sprintf("%s:%d", c.Host, c.Port))
 	if err != nil {
@@ -33,7 +33,7 @@ func NewServer(c *config.ServerConf, ur *resource.UserResource) (*Server, error)
 	s := grpc.NewServer()
 
 	// Register gRPC service handlers.
-	uspb.RegisterUserSourceServiceServer(s, ur.SourceHandler)
+	authProto.RegisterUserAuthServiceServer(s, uRes.AuthHandler)
 
 	return &Server{
 		listener: l,
