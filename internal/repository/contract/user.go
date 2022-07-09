@@ -1,9 +1,9 @@
 package contract
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 
-	"github.com/smhdhsn/restaurant-user/internal/model"
+	"github.com/smhdhsn/restaurant-user/internal/repository/entity"
 )
 
 // This section contains MySQL error numbers.
@@ -19,8 +19,6 @@ var (
 
 // UserRepository is the interface representing user repository or it's mock.
 type UserRepository interface {
-	Store(*model.UserDTO) (*model.UserDTO, error)
-	Find(*model.UserDTO) (*model.UserDTO, error)
-	Destroy(*model.UserDTO) error
-	Update(*model.UserDTO) error
+	FindBy(*entity.User) (*entity.User, error)
+	Store(*entity.User) (*entity.User, error)
 }
