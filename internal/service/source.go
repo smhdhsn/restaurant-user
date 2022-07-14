@@ -24,7 +24,7 @@ func NewAuthService(uRepo repositoryContract.UserRepository) serviceContract.Use
 }
 
 // FindBy is responsible for fetching user's details from database.
-func (s *AuthService) FindBy(uDTO *dto.User) (*entity.User, error) {
+func (s *AuthService) FindBy(uDTO *dto.User) (*dto.User, error) {
 	uEntity := singleUserDTOToEntity(uDTO)
 
 	uEntity, err := s.uRepo.FindBy(uEntity)
@@ -36,11 +36,13 @@ func (s *AuthService) FindBy(uDTO *dto.User) (*entity.User, error) {
 		return nil, errors.Wrap(err, "error on calling findby on user repository")
 	}
 
-	return uEntity, nil
+	uDTO = singleUserEntityToDTO(uEntity)
+
+	return uDTO, nil
 }
 
 // Store is responsible for storing user data inside database.
-func (s *AuthService) Store(uDTO *dto.User) (*entity.User, error) {
+func (s *AuthService) Store(uDTO *dto.User) (*dto.User, error) {
 	uEntity := singleUserDTOToEntity(uDTO)
 
 	uEntity.Password = encryption.EncodeMD5(uEntity.Password)
@@ -54,7 +56,9 @@ func (s *AuthService) Store(uDTO *dto.User) (*entity.User, error) {
 		return nil, errors.Wrap(err, "error on calling store on user repository")
 	}
 
-	return uEntity, nil
+	uDTO = singleUserEntityToDTO(uEntity)
+
+	return uDTO, nil
 }
 
 // singleUserDTOToEntity is responsible for transforming a user dto into user entity struct.
@@ -67,5 +71,18 @@ func singleUserDTOToEntity(uDTO *dto.User) *entity.User {
 		Password:  uDTO.Password,
 		CreatedAt: uDTO.CreatedAt,
 		UpdatedAt: uDTO.UpdatedAt,
+	}
+}
+
+// singleUserEntityToDTO is responsible for transforming a user entity into user dto struct.
+func singleUserEntityToDTO(uEntity *entity.User) *dto.User {
+	return &dto.User{
+		ID:        uEntity.ID,
+		FirstName: uEntity.FirstName,
+		LastName:  uEntity.LastName,
+		Email:     uEntity.Email,
+		Password:  uEntity.Password,
+		CreatedAt: uEntity.CreatedAt,
+		UpdatedAt: uEntity.UpdatedAt,
 	}
 }

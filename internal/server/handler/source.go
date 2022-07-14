@@ -7,7 +7,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/smhdhsn/restaurant-user/internal/repository/entity"
 	"github.com/smhdhsn/restaurant-user/internal/service/dto"
 
 	authProto "github.com/smhdhsn/restaurant-user/internal/protos/user/auth"
@@ -30,7 +29,7 @@ func NewAuthHandler(as serviceContract.UserAuthService) authProto.UserAuthServic
 func (s *AuthHandler) Store(ctx context.Context, req *authProto.UserStoreRequest) (*authProto.UserStoreResponse, error) {
 	uDTO := singleStoreReqToUserDTO(req)
 
-	uEntity, err := s.authServ.Store(uDTO)
+	uDTO, err := s.authServ.Store(uDTO)
 	if err != nil {
 		if errors.Is(err, serviceContract.ErrDuplicateEntry) {
 			return nil, status.Error(codes.AlreadyExists, err.Error())
@@ -39,7 +38,7 @@ func (s *AuthHandler) Store(ctx context.Context, req *authProto.UserStoreRequest
 		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
 	}
 
-	resp := singleUserEntityToStoreResp(uEntity)
+	resp := singleUserDTOToStoreResp(uDTO)
 
 	return resp, nil
 }
@@ -54,13 +53,13 @@ func singleStoreReqToUserDTO(req *authProto.UserStoreRequest) *dto.User {
 	}
 }
 
-// singleUserEntityToStoreResp is responsible for transforming a user entity into Store response struct.
-func singleUserEntityToStoreResp(uEntity *entity.User) *authProto.UserStoreResponse {
+// singleUserDTOToStoreResp is responsible for transforming a user dto into Store response struct.
+func singleUserDTOToStoreResp(uDTO *dto.User) *authProto.UserStoreResponse {
 	return &authProto.UserStoreResponse{
-		Id:        uEntity.ID,
-		FirstName: uEntity.FirstName,
-		LastName:  uEntity.LastName,
-		Email:     uEntity.Email,
+		Id:        uDTO.ID,
+		FirstName: uDTO.FirstName,
+		LastName:  uDTO.LastName,
+		Email:     uDTO.Email,
 	}
 }
 
@@ -68,7 +67,7 @@ func singleUserEntityToStoreResp(uEntity *entity.User) *authProto.UserStoreRespo
 func (s *AuthHandler) FindBy(ctx context.Context, req *authProto.UserFindByRequest) (*authProto.UserFindByResponse, error) {
 	uDTO := singleFindByReqToUserDTO(req)
 
-	uEntity, err := s.authServ.FindBy(uDTO)
+	uDTO, err := s.authServ.FindBy(uDTO)
 	if err != nil {
 		if errors.Is(err, serviceContract.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
@@ -77,7 +76,7 @@ func (s *AuthHandler) FindBy(ctx context.Context, req *authProto.UserFindByReque
 		return nil, status.Errorf(codes.Internal, "internal server error: %w", err)
 	}
 
-	resp := singleUserEntityToFindByResp(uEntity)
+	resp := singleUserDTOToFindByResp(uDTO)
 
 	return resp, nil
 }
@@ -90,12 +89,12 @@ func singleFindByReqToUserDTO(req *authProto.UserFindByRequest) *dto.User {
 	}
 }
 
-// singleUserEntityToFindByResp is responsible for transforming a user entity into FindBy response struct.
-func singleUserEntityToFindByResp(uEntity *entity.User) *authProto.UserFindByResponse {
+// singleUserDTOToFindByResp is responsible for transforming a user dto into FindBy response struct.
+func singleUserDTOToFindByResp(uDTO *dto.User) *authProto.UserFindByResponse {
 	return &authProto.UserFindByResponse{
-		Id:        uEntity.ID,
-		FirstName: uEntity.FirstName,
-		LastName:  uEntity.LastName,
-		Email:     uEntity.Email,
+		Id:        uDTO.ID,
+		FirstName: uDTO.FirstName,
+		LastName:  uDTO.LastName,
+		Email:     uDTO.Email,
 	}
 }

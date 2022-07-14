@@ -3,7 +3,6 @@ package contract
 import (
 	"github.com/pkg/errors"
 
-	"github.com/smhdhsn/restaurant-user/internal/repository/entity"
 	"github.com/smhdhsn/restaurant-user/internal/service/dto"
 )
 
@@ -15,6 +14,6 @@ var (
 
 // UserAuthService is the interface that user's auth service must implement.
 type UserAuthService interface {
-	FindBy(*dto.User) (*entity.User, error)
-	Store(*dto.User) (*entity.User, error)
+	FindBy(*dto.User) (*dto.User, error)
+	Store(*dto.User) (*dto.User, error)
 }
