@@ -45,8 +45,6 @@ func (s *AuthService) FindBy(uDTO *dto.User) (*dto.User, error) {
 func (s *AuthService) Store(uDTO *dto.User) (*dto.User, error) {
 	uEntity := singleUserDTOToEntity(uDTO)
 
-	uEntity.Password = encryption.EncodeMD5(uEntity.Password)
-
 	uEntity, err := s.uRepo.Store(uEntity)
 	if err != nil {
 		if errors.Is(err, repositoryContract.ErrDuplicateEntry) {
@@ -68,7 +66,7 @@ func singleUserDTOToEntity(uDTO *dto.User) *entity.User {
 		FirstName: uDTO.FirstName,
 		LastName:  uDTO.LastName,
 		Email:     uDTO.Email,
-		Password:  uDTO.Password,
+		Password:  encryption.EncodeMD5(uDTO.Password),
 		CreatedAt: uDTO.CreatedAt,
 		UpdatedAt: uDTO.UpdatedAt,
 	}
